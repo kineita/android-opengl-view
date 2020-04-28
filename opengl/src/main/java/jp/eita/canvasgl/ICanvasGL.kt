@@ -19,6 +19,7 @@ import android.graphics.Bitmap
 import android.graphics.Rect
 import android.graphics.RectF
 import android.graphics.SurfaceTexture
+import androidx.annotation.FloatRange
 import androidx.annotation.IntRange
 import jp.eita.canvasgl.glcanvas.*
 import jp.eita.canvasgl.matrix.IBitmapMatrix
@@ -56,6 +57,8 @@ interface ICanvasGL {
 
     fun drawBitmap(bitmap: Bitmap, left: Int, top: Int, textureFilter: TextureFilter)
 
+    fun drawBitmap(bitmap: Bitmap, @FloatRange(from = 0.1, to = 2.0) scaleRatioBitmap: Float, left: Int, top: Int, textureFilter: TextureFilter)
+
     fun drawBitmap(bitmap: Bitmap, src: Rect?, dst: Rect?)
 
     fun drawBitmap(bitmap: Bitmap, src: RectF?, dst: RectF?, textureFilter: TextureFilter)
@@ -86,6 +89,7 @@ interface ICanvasGL {
 
     fun rotate(degrees: Float, px: Float, py: Float)
 
+    // This function will scale size of canvas, not Object on Canvas.
     fun scale(sx: Float, sy: Float)
 
     fun scale(sx: Float, sy: Float, px: Float, py: Float)

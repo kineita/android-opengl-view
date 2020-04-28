@@ -28,10 +28,16 @@ class ScaleRatioList(initialCapacity: Int) : ArrayList<Float>(initialCapacity) {
 
         private var rangeScaleRatio: FloatArray = floatArrayOf(
                 value * 1.0f,
+                value * 0.9f,
                 value * 0.8f,
+                value * 0.7f,
                 value * 0.6f,
+                value * 0.5f,
                 value * 0.4f,
+                value * 0.4f,
+                value * 0.5f,
                 value * 0.6f,
+                value * 0.7f,
                 value * 0.8f,
                 value * 1.0f
         )

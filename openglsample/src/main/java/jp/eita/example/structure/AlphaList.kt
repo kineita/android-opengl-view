@@ -27,15 +27,16 @@ class AlphaList(initialCapacity: Int) : ArrayList<Int>(initialCapacity) {
     class Detail(value: Int) {
 
         private var rangeAlpha = intArrayOf(
+                value,
+                (value * 0.8).toInt(),
+                (value * 0.7).toInt(),
+                (value * 0.4).toInt(),
                 (value * 0.2).toInt(),
                 (value * 0.4).toInt(),
                 (value * 0.6).toInt(),
+                (value * 0.7).toInt(),
                 (value * 0.8).toInt(),
-                value,
-                (value * 0.8).toInt(),
-                (value * 0.6).toInt(),
-                (value * 0.4).toInt(),
-                (value * 0.2).toInt()
+                value
         )
 
         private var crawlerAlpha: Int = 0

@@ -26,9 +26,9 @@ import jp.eita.canvasgl.BitmapUtils
 import jp.eita.canvasgl.OpenGLUtil
 import jp.eita.canvasgl.textureFilter.*
 import jp.eita.example.R
-import jp.eita.example.structure.ScaleRatioList
 import jp.eita.example.bubble.model.Bubble
 import jp.eita.example.structure.AlphaList
+import jp.eita.example.structure.ScaleRatioList
 import kotlinx.android.synthetic.main.activity_opengl.*
 import java.util.*
 import kotlin.collections.ArrayList
@@ -48,7 +48,7 @@ class OpenGLActivity : AppCompatActivity() {
     }
 
     init {
-        Handler().postDelayed(runnable, 150)
+//        Handler().postDelayed(runnable, 150)
     }
 
     private fun loopChangingPropertiesBubbles() {
@@ -112,11 +112,12 @@ class OpenGLActivity : AppCompatActivity() {
     }
 
     private fun initFilterList(filterList: MutableList<TextureFilter>) {
-        filterList.add(BasicTextureFilter())
-        filterList.add(ContrastFilter(1.6f))
-        filterList.add(SaturationFilter(1.6f))
-        filterList.add(PixelationFilter(12F))
-        filterList.add(HueFilter(100F))
+        filterList.add(PixelationFilter(1f))
+//        filterList.add(ContrastFilter(1.6f))
+//        filterList.add(SaturationFilter(1.6f))
+//        filterList.add(PixelationFilter(12F))
+//        filterList.add(HueFilter(100F))
+//        filterList.add(CropFilter(120.0f, 120.0f, 120.0f, 120.0f))
     }
 
     private fun setUpButtonLike() {

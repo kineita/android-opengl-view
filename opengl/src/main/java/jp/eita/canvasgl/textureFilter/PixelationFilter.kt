@@ -21,29 +21,29 @@ import jp.eita.canvasgl.ICanvasGL
 import jp.eita.canvasgl.OpenGLUtil.setFloat
 import jp.eita.canvasgl.glcanvas.BasicTexture
 
-class PixelationFilter(@param:FloatRange(from = 1.0, to = 100.0) private var mPixel: Float) : BasicTextureFilter(), OneValueFilter {
+class PixelationFilter(@param:FloatRange(from = 1.0, to = 100.0) private var pixel: Float) : BasicTextureFilter(), OneValueFilter {
 
-    private var mImageWidthFactorLocation = 0
+    private var imageWidthFactorLocation = 0
 
-    private var mImageHeightFactorLocation = 0
+    private var imageHeightFactorLocation = 0
 
-    private var mPixelLocation = 0
+    private var pixelLocation = 0
 
     override val fragmentShader: String
         get() = PIXELATION_FRAGMENT_SHADER
 
     override fun onPreDraw(program: Int, texture: BasicTexture, canvas: ICanvasGL) {
         super.onPreDraw(program, texture, canvas)
-        mImageWidthFactorLocation = GLES20.glGetUniformLocation(program, UNIFORM_IMAGE_WIDTH_FACTOR)
-        mImageHeightFactorLocation = GLES20.glGetUniformLocation(program, UNIFORM_IMAGE_HEIGHT_FACTOR)
-        mPixelLocation = GLES20.glGetUniformLocation(program, UNIFORM_PIXEL)
-        setFloat(mImageWidthFactorLocation, 1.0f / texture.width)
-        setFloat(mImageHeightFactorLocation, 1.0f / texture.height)
-        setFloat(mPixelLocation, mPixel)
+        imageWidthFactorLocation = GLES20.glGetUniformLocation(program, UNIFORM_IMAGE_WIDTH_FACTOR)
+        imageHeightFactorLocation = GLES20.glGetUniformLocation(program, UNIFORM_IMAGE_HEIGHT_FACTOR)
+        pixelLocation = GLES20.glGetUniformLocation(program, UNIFORM_PIXEL)
+        setFloat(imageWidthFactorLocation, 1.0f / texture.width)
+        setFloat(imageHeightFactorLocation, 1.0f / texture.height)
+        setFloat(pixelLocation, pixel)
     }
 
     override fun setValue(@FloatRange(from = 1.0, to = 100.0) value: Float) {
-        mPixel = value
+        pixel = value
     }
 
     companion object {

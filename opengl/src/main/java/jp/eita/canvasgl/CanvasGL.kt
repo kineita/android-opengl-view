@@ -17,6 +17,7 @@ package jp.eita.canvasgl
 
 import android.graphics.*
 import android.opengl.GLES20
+import androidx.annotation.FloatRange
 import androidx.annotation.IntRange
 import jp.eita.canvasgl.glcanvas.*
 import jp.eita.canvasgl.glcanvas.GLCanvas.ICustomMVPMatrix
@@ -28,6 +29,7 @@ import jp.eita.canvasgl.textureFilter.BasicTextureFilter
 import jp.eita.canvasgl.textureFilter.FilterGroup
 import jp.eita.canvasgl.textureFilter.TextureFilter
 import java.util.*
+import kotlin.math.roundToInt
 
 /**
  * All the depth of textures are the same. So the texture drawn after will cover the texture drawn before.
@@ -181,6 +183,13 @@ class CanvasGL constructor(override val glCanvas: GLCanvas = GLES20Canvas()) : I
         glCanvas.drawTexture(basicTexture, left, top, bitmap.width, bitmap.height, textureFilter, null)
     }
 
+    override fun drawBitmap(bitmap: Bitmap, @FloatRange(from = 0.1, to = 2.0) scaleRatioBitmap: Float, left: Int, top: Int, textureFilter: TextureFilter) {
+        val basicTexture = getTexture(bitmap, textureFilter)
+        val newBitmapWidth: Int = (bitmap.width * scaleRatioBitmap).roundToInt()
+        val newBitmapHeight: Int = (bitmap.height * scaleRatioBitmap).roundToInt()
+        glCanvas.drawTexture(basicTexture, left, top, newBitmapWidth, newBitmapHeight, textureFilter, null)
+    }
+
     override fun drawBitmap(bitmap: Bitmap, src: Rect?, dst: Rect?) {
         drawBitmap(bitmap, src, RectF(dst))
     }
@@ -323,18 +332,10 @@ class CanvasGL constructor(override val glCanvas: GLCanvas = GLES20Canvas()) : I
         glCanvas.setSize(width, height)
     }
 
-//    override fun setSize(scaleRatioSize: Float) {
-////        this.width = (width * scaleRatioSize).toInt()
-////        this.height = (height * scaleRatioSize).toInt()
-////        glCanvas.setSize(this.width, this.height)
-//    }
-
-    override fun resume() {}
+    override fun resume() { }
 
     override fun pause() {
-        if (currentTextureFilter != null) {
-            currentTextureFilter!!.destroy()
-        }
+        currentTextureFilter?.destroy()
     }
 
     override fun setAlpha(@IntRange(from = 0, to = 255) alpha: Int) {

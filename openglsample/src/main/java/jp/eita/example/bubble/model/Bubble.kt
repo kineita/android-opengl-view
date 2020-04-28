@@ -58,9 +58,8 @@ class Bubble : MovableCollisionObject {
         val left = (point.x - bitmap.width / 2f).toInt()
         val top = (point.y - bitmap.height / 2f).toInt()
         canvas.rotate(rotateDegree, point.x, point.y)
-        canvas.scale(scaleSizeRatio, scaleSizeRatio, scaleSizeRatio, scaleSizeRatio)
         canvas.setAlpha(alpha)
-        canvas.drawBitmap(bitmap, left, top, textureFilter!!)
+        canvas.drawBitmap(bitmap, scaleSizeRatio, left, top, textureFilter!!)
         canvas.restore()
     }
 
