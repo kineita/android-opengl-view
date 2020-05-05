@@ -25,6 +25,7 @@ import android.text.TextWatcher
 import androidx.appcompat.app.AppCompatActivity
 import jp.eita.canvasgl.BitmapUtils
 import jp.eita.canvasgl.textureFilter.*
+import jp.eita.example.AnimatorUtils
 import jp.eita.example.R
 import jp.eita.example.model.Reaction
 import kotlinx.android.synthetic.main.activity_opengl_bubble.buttonLike
@@ -98,7 +99,14 @@ class ReactionActivity : AppCompatActivity() {
     private fun setUpButtonLike() {
         buttonLike.setOnClickListener {
             gl_view_reaction.onPause()
-            gl_view_reaction.reactionList.add(createReaction(upFilterList))
+            val reaction = createReaction(upFilterList)
+            AnimatorUtils.animateScaleSize(reaction, if (editTextScaleRatio.text.toString().isEmpty()) {
+                0.1f
+            } else {
+                editTextScaleRatio.text.toString().toFloat()
+            }, DEFAULT_TIME_DELAY_ANIMATE)
+            AnimatorUtils.animateAlpha(reaction, 255, DEFAULT_TIME_DELAY_ANIMATE)
+            gl_view_reaction.reactionList.add(reaction)
             gl_view_reaction.onResume()
         }
     }
@@ -157,5 +165,7 @@ class ReactionActivity : AppCompatActivity() {
         const val MIN_VX = 10
 
         const val MAX_VX = 30
+
+        const val DEFAULT_TIME_DELAY_ANIMATE: Long = 150
     }
 }

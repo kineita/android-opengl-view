@@ -13,9 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package jp.eita.example.structure
 
-class ScaleRatioList(initialCapacity: Int) : ArrayList<Float>(initialCapacity) {
+class ScaleRatioList : ArrayList<Float>() {
 
     val listDetails: MutableList<Detail> = ArrayList()
 

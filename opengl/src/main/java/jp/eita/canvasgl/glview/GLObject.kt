@@ -23,9 +23,18 @@ import jp.eita.canvasgl.ICanvasGL
 
 abstract class GLObject {
 
+    var status: Status = Status.LIVE
+
     abstract fun glDraw(iCanvasGL: ICanvasGL)
 
     abstract fun normalDraw(canvas: Canvas)
 
     abstract fun onDestroy()
+
+    enum class Status {
+
+        LIVE,
+
+        DESTROY
+    }
 }

@@ -22,59 +22,30 @@ import android.content.Context
 import android.util.AttributeSet
 import jp.eita.canvasgl.ICanvasGL
 import jp.eita.canvasgl.glview.GLContinuousView
-import jp.eita.canvasgl.util.Loggers
-import jp.eita.example.model.*
-import jp.eita.example.model.Wall.WallX
-import jp.eita.example.model.Wall.WallY
+import jp.eita.example.model.Reaction
 import java.util.*
 
 class DestroyableOpenGLBackgroundView : GLContinuousView {
 
     val reactionList: MutableList<Reaction> = ArrayList()
 
-    private val wallTop: Wall = WallY(0F)
-
-    private val wallLeft: Wall = WallX(0F)
-
-    private var wallBottom: Wall? = null
-
-    private var wallRight: Wall? = null
-
     constructor(context: Context?) : super(context)
 
     constructor(context: Context?, attrs: AttributeSet?) : super(context, attrs)
-
-    private val onCollisionListener: MovableCollisionObject.CollisionListener = object : MovableCollisionObject.CollisionListener {
-
-        override fun onCollision(direction: Int) {
-
-        }
-    }
-
-    override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
-        super.onSizeChanged(w, h, oldw, oldh)
-        wallBottom = WallY(h.toFloat())
-        wallRight = WallX(w.toFloat())
-    }
 
     override fun onGLDraw(canvas: ICanvasGL) {
         val iterator: MutableIterator<Reaction> = reactionList.iterator()
         while (iterator.hasNext()) {
             val reaction = iterator.next()
             if (isOutOfRange(reaction)) {
+                // Clear old reaction to release it.
+                canvas.removeBitmapTexture(bitmap = reaction.bitmap)
+                reaction.onDestroy()
                 iterator.remove()
                 continue
             }
 
             reaction.glDraw(canvas)
-            if (wallTop.isTouch(reaction.point, reaction.collisionRadius)
-                    || wallBottom!!.isTouch(reaction.point, reaction.collisionRadius)) {
-                reaction.onCollision(MovableCollisionObject.CollisionListener.DIRECTION_VERTICAL)
-            } else if (wallLeft.isTouch(reaction.point, reaction.collisionRadius)
-                    || wallRight!!.isTouch(reaction.point, reaction.collisionRadius)) {
-                reaction.onCollision(MovableCollisionObject.CollisionListener.DIRECTION_HORIZONTAL)
-            }
-
             reaction.updatePosition(INTERNAL_TIME_MS)
         }
     }
@@ -89,6 +60,6 @@ class DestroyableOpenGLBackgroundView : GLContinuousView {
 
     companion object {
 
-        private const val INTERNAL_TIME_MS = 40
+        private const val INTERNAL_TIME_MS = 20
     }
 }

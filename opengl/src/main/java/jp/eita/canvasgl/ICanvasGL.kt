@@ -116,4 +116,6 @@ interface ICanvasGL {
      * @param alpha alpha value
      */
     fun setAlpha(@IntRange(from = 0, to = 255) alpha: Int)
+
+    fun removeBitmapTexture(bitmap: Bitmap)
 }

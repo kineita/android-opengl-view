@@ -24,7 +24,7 @@ import jp.eita.canvasgl.ICanvasGL
 import jp.eita.canvasgl.textureFilter.BasicTextureFilter
 import jp.eita.canvasgl.textureFilter.TextureFilter
 
-class Reaction : MovableCollisionObject {
+class Reaction : MovableObject {
 
     val bitmap: Bitmap
 
@@ -38,10 +38,9 @@ class Reaction : MovableCollisionObject {
             rotateDegree: Float = DEFAULT_ROTATE_DEGREE,
             scaleSizeRatio: Float = DEFAULT_SCALE_VALUE,
             alpha: Int = DEFAULT_ALPHA_VALUE,
-            collisionRadius: Float = -1f, // Set it to -1 to ignore collision.
             textureFilter: TextureFilter = BasicTextureFilter(),
             bitmap: Bitmap
-    ) : super(point, vx, vy, vRotate, rotateDegree, scaleSizeRatio, alpha, collisionRadius) {
+    ) : super(point, vx, vy, vRotate, rotateDegree, scaleSizeRatio, alpha) {
         this.textureFilter = textureFilter
         this.bitmap = bitmap
     }
@@ -60,6 +59,6 @@ class Reaction : MovableCollisionObject {
     }
 
     override fun onDestroy() {
-
+        status = Status.DESTROY
     }
 }

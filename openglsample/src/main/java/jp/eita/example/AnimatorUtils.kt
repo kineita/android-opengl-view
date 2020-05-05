@@ -19,26 +19,45 @@
 package jp.eita.example
 
 import android.os.Handler
-import jp.eita.example.model.MovableCollisionObject
-import jp.eita.example.structure.AlphaList
-import jp.eita.example.structure.ScaleRatioList
+import jp.eita.canvasgl.glview.GLObject
+import jp.eita.canvasgl.util.Loggers
+import jp.eita.example.model.MovableObject
+import jp.eita.example.structure.AlphaGenerator
+import jp.eita.example.structure.ScaleSizeRatioGenerator
 
 object AnimatorUtils {
 
-    private val listMovableCollisionObject: MutableList<MovableCollisionObject> = ArrayList()
+    private val TAG: String = AnimatorUtils::class.simpleName.toString()
 
-    private val scaleRatioList: ScaleRatioList = ScaleRatioList(0)
+    fun animateScaleSize(movableObject: MovableObject, scaleSizeRatio: Float, timeDelayToAnimate: Long) {
+        val scaleSizeRatioGenerator = ScaleSizeRatioGenerator(scaleSizeRatio)
+        val runnable: Runnable = object : Runnable {
+            override fun run() {
+                if (movableObject.status == GLObject.Status.DESTROY) {
+                    Loggers.d(TAG, "End of scale size runnable")
+                    return
+                }
 
-    private val alphaList: AlphaList = AlphaList(0)
-
-    private val runnableScaleSizeRatio = Runnable {
-
+                movableObject.scaleSizeRatio = scaleSizeRatioGenerator.scaleRatioValue
+                Handler().postDelayed(this, timeDelayToAnimate)
+            }
+        }
+        Handler().postDelayed(runnable, timeDelayToAnimate)
     }
 
-    fun animateScaleSize(movableCollisionObject: MovableCollisionObject, scaleSizeRatio: Float, timeDelayToAnimate: Long) {
-        listMovableCollisionObject.add(movableCollisionObject)
-        scaleRatioList.add(scaleSizeRatio)
-        movableCollisionObject.scaleSizeRatio = scaleSizeRatio
-        Handler().postDelayed(runnableScaleSizeRatio, timeDelayToAnimate)
+    fun animateAlpha(movableObject: MovableObject, alpha: Int, timeDelayToAnimate: Long) {
+        val alphaGenerator = AlphaGenerator(alpha)
+        val runnable: Runnable = object : Runnable {
+            override fun run() {
+                if (movableObject.status == GLObject.Status.DESTROY) {
+                    Loggers.d(TAG, "End of alpha runnable")
+                    return
+                }
+
+                movableObject.alpha = alphaGenerator.alphaValue
+                Handler().postDelayed(this, timeDelayToAnimate)
+            }
+        }
+        Handler().postDelayed(runnable, timeDelayToAnimate)
     }
 }

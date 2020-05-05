@@ -342,6 +342,10 @@ class CanvasGL constructor(override val glCanvas: GLCanvas = GLES20Canvas()) : I
         glCanvas.alpha = alpha / 255.toFloat()
     }
 
+    override fun removeBitmapTexture(bitmap: Bitmap) {
+        bitmapTextureMap.remove(bitmap)
+    }
+
     @Throws(Throwable::class)
     protected fun finalize() {
         for (bitmapTexture in bitmapTextureMap.values) {

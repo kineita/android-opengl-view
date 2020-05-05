@@ -39,7 +39,7 @@ class BubbleActivity : AppCompatActivity() {
 
     private lateinit var bitmap: Bitmap
 
-    private val scaleRatioList: ScaleRatioList = ScaleRatioList(0)
+    private val scaleRatioList: ScaleRatioList = ScaleRatioList()
 
     private val alphaList: AlphaList = AlphaList(0)
 
