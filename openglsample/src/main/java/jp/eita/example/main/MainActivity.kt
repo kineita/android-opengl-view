@@ -20,9 +20,11 @@ import android.os.Bundle
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
-import jp.eita.example.main.OpenGLName.OPENGL
 import jp.eita.example.R
-import jp.eita.example.bubble.OpenGLActivity
+import jp.eita.example.main.bubble.BubbleActivity
+import jp.eita.example.main.OpenGLName.OPENGL
+import jp.eita.example.main.OpenGLName.REACTION
+import jp.eita.example.main.reaction.ReactionActivity
 import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : AppCompatActivity() {
@@ -33,7 +35,10 @@ class MainActivity : AppCompatActivity() {
         val intent: Intent
         when (it.tag) {
             OPENGL -> {
-                intent = Intent(this, OpenGLActivity::class.java)
+                intent = Intent(this, BubbleActivity::class.java)
+            }
+            REACTION -> {
+                intent = Intent(this, ReactionActivity::class.java)
             }
             else -> {
                 return@OnClickListener
@@ -43,7 +48,8 @@ class MainActivity : AppCompatActivity() {
     }
 
     private val listParameters: List<OpenGLParameters> = listOf(
-            OpenGLParameters(OPENGL)
+            OpenGLParameters(OPENGL),
+            OpenGLParameters(REACTION)
     )
 
     override fun onCreate(savedInstanceState: Bundle?) {

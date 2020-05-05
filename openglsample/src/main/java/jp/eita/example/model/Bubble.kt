@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package jp.eita.example.bubble.model
+package jp.eita.example.model
 
 import android.graphics.Bitmap
 import android.graphics.Canvas
@@ -23,6 +23,7 @@ import androidx.annotation.FloatRange
 import jp.eita.canvasgl.ICanvasGL
 import jp.eita.canvasgl.textureFilter.BasicTextureFilter
 import jp.eita.canvasgl.textureFilter.TextureFilter
+import jp.eita.canvasgl.util.Loggers
 
 class Bubble : MovableCollisionObject {
 
@@ -37,11 +38,12 @@ class Bubble : MovableCollisionObject {
             vx: Float,
             vy: Float,
             vRotate: Float,
+            collisionRadius: Float,
             bitmap: Bitmap,
             textureFilter: TextureFilter? = null,
             @FloatRange(from = 0.1, to = 2.0) scaleSizeRatio: Float = DEFAULT_SCALE_VALUE,
             alpha: Int = DEFAULT_ALPHA_VALUE
-    ) : super(point, vx, vy, vRotate, bitmap.width / 2f) {
+    ) : super(point, vx, vy, vRotate, rotateDegree = bitmap.width / 2f, collisionRadius = collisionRadius) {
         this.bitmap = bitmap
         this.paint = Paint()
         if (textureFilter == null) {
@@ -53,17 +55,17 @@ class Bubble : MovableCollisionObject {
         this.scaleSizeRatio = scaleSizeRatio
     }
 
-    fun glDraw(canvas: ICanvasGL) {
-        canvas.save()
+    override fun glDraw(iCanvasGL: ICanvasGL) {
+        iCanvasGL.save()
         val left = (point.x - bitmap.width / 2f).toInt()
         val top = (point.y - bitmap.height / 2f).toInt()
-        canvas.rotate(rotateDegree, point.x, point.y)
-        canvas.setAlpha(alpha)
-        canvas.drawBitmap(bitmap, scaleSizeRatio, left, top, textureFilter!!)
-        canvas.restore()
+        iCanvasGL.rotate(rotateDegree, point.x, point.y)
+        iCanvasGL.setAlpha(alpha)
+        iCanvasGL.drawBitmap(bitmap, scaleSizeRatio, left, top, textureFilter!!)
+        iCanvasGL.restore()
     }
 
-    fun normalDraw(canvas: Canvas) {
+    override fun normalDraw(canvas: Canvas) {
         canvas.save()
         val left = (point.x - bitmap.width / 2.toFloat()).toInt()
         val top = (point.y - bitmap.height / 2.toFloat()).toInt()
@@ -73,11 +75,17 @@ class Bubble : MovableCollisionObject {
     }
 
     override fun onCollision(direction: Int) {
+        Loggers.d(TAG, "onCollision = $direction")
         super.onCollision(direction = direction)
         if (direction == CollisionListener.DIRECTION_HORIZONTAL) {
             vx = -vx
         } else if (direction == CollisionListener.DIRECTION_VERTICAL) {
             vy = -vy
         }
+    }
+
+    companion object {
+
+        val TAG: String = this::class.simpleName.toString()
     }
 }

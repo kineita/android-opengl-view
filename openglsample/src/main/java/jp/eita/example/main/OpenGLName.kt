@@ -18,4 +18,6 @@ package jp.eita.example.main
 object OpenGLName {
 
     const val OPENGL: String = "Bubble"
+
+    const val REACTION: String = "Reaction"
 }

@@ -24,22 +24,22 @@ class ScaleRatioList(initialCapacity: Int) : ArrayList<Float>(initialCapacity) {
         return super.add(element)
     }
 
-    class Detail(value: Float) {
+    class Detail(val originalValue: Float) {
 
         private var rangeScaleRatio: FloatArray = floatArrayOf(
-                value * 1.0f,
-                value * 0.9f,
-                value * 0.8f,
-                value * 0.7f,
-                value * 0.6f,
-                value * 0.5f,
-                value * 0.4f,
-                value * 0.4f,
-                value * 0.5f,
-                value * 0.6f,
-                value * 0.7f,
-                value * 0.8f,
-                value * 1.0f
+                originalValue * 1.0f,
+                originalValue * 0.9f,
+                originalValue * 0.8f,
+                originalValue * 0.7f,
+                originalValue * 0.6f,
+                originalValue * 0.5f,
+                originalValue * 0.4f,
+                originalValue * 0.4f,
+                originalValue * 0.5f,
+                originalValue * 0.6f,
+                originalValue * 0.7f,
+                originalValue * 0.8f,
+                originalValue * 1.0f
         )
 
         private var crawlerRangeScaleRatio: Int = 0

@@ -13,35 +13,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package jp.eita.example.bubble.model
+package jp.eita.example.model
 
 import android.graphics.PointF
+import kotlin.math.abs
 
-open class MovableCollisionObject : MovableObject {
+abstract class Wall(protected var value: Float) {
 
-    private var onCollisionListener: CollisionListener? = null
+    abstract fun isTouch(point: PointF, objRadius: Float): Boolean
 
-    constructor(
-            point: PointF,
-            vx: Float,
-            vy: Float,
-            vRotate: Float,
-            collisionRadius: Float
-    ) : super(point, vx, vy, vRotate, collisionRadius)
+    class WallX(value: Float) : Wall(value) {
 
-    open fun onCollision(direction: Int) {
-        onCollisionListener?.onCollision(direction = direction)
-    }
-
-    interface CollisionListener {
-
-        fun onCollision(direction: Int)
-
-        companion object {
-
-            const val DIRECTION_HORIZONTAL = 0
-
-            const val DIRECTION_VERTICAL = 1
+        override fun isTouch(point: PointF, objRadius: Float): Boolean {
+            return abs(point.x - value) <= objRadius
         }
     }
+
+    class WallY(value: Float) : Wall(value) {
+
+        override fun isTouch(point: PointF, objRadius: Float): Boolean {
+            return abs(point.y - value) <= objRadius
+        }
+    }
+
 }

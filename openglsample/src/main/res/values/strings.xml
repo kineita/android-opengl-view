@@ -1,4 +1,5 @@
 <resources>
     <string name="app_name">Android OpenGL</string>
     <string name="bubble_title">Bubble</string>
+    <string name="reaction_title">Reaction</string>
 </resources>

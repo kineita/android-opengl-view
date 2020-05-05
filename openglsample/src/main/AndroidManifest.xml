@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
      /*
      * Copyright [2020 - Present] [Lê Trần Ngọc Thành - 瑛太 (eita)] [kineita (Github)]
      *
@@ -18,6 +17,7 @@
      -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="jp.eita.example">
+
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
     <application
@@ -35,13 +35,8 @@
             </intent-filter>
         </activity>
 
-        <activity android:name="jp.eita.example.bubble.OpenGLActivity">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
+        <activity android:name="jp.eita.example.main.bubble.BubbleActivity" />
 
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
-
+        <activity android:name=".main.reaction.ReactionActivity" />
     </application>
 </manifest>
