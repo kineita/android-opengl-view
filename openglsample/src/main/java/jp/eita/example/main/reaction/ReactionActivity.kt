@@ -24,7 +24,9 @@ import android.text.Editable
 import android.text.TextWatcher
 import androidx.appcompat.app.AppCompatActivity
 import jp.eita.canvasgl.BitmapUtils
-import jp.eita.canvasgl.textureFilter.*
+import jp.eita.canvasgl.glcanvas.GLPath
+import jp.eita.canvasgl.textureFilter.BasicTextureFilter
+import jp.eita.canvasgl.textureFilter.TextureFilter
 import jp.eita.example.AnimatorUtils
 import jp.eita.example.R
 import jp.eita.example.model.Reaction
@@ -33,6 +35,7 @@ import kotlinx.android.synthetic.main.activity_opengl_bubble.editTextScaleRatio
 import kotlinx.android.synthetic.main.activity_opengl_reaction.*
 import java.util.*
 import kotlin.collections.ArrayList
+
 
 class ReactionActivity : AppCompatActivity() {
 
@@ -89,11 +92,12 @@ class ReactionActivity : AppCompatActivity() {
     }
 
     private fun initFilterList(filterList: MutableList<TextureFilter>) {
-        filterList.add(PixelationFilter(1f))
-        filterList.add(ContrastFilter(1.6f))
-        filterList.add(SaturationFilter(1.6f))
-        filterList.add(PixelationFilter(12F))
-        filterList.add(HueFilter(100F))
+        filterList.add(BasicTextureFilter())
+//        filterList.add(PixelationFilter(1f))
+//        filterList.add(ContrastFilter(1.6f))
+//        filterList.add(SaturationFilter(1.6f))
+//        filterList.add(PixelationFilter(12F))
+//        filterList.add(HueFilter(100F))
     }
 
     private fun setUpButtonLike() {
@@ -101,11 +105,11 @@ class ReactionActivity : AppCompatActivity() {
             gl_view_reaction.onPause()
             val reaction = createReaction(upFilterList)
             AnimatorUtils.animateScaleSize(reaction, if (editTextScaleRatio.text.toString().isEmpty()) {
-                0.1f
+                1.6f
             } else {
                 editTextScaleRatio.text.toString().toFloat()
             }, DEFAULT_TIME_DELAY_ANIMATE)
-            AnimatorUtils.animateAlpha(reaction, 255, DEFAULT_TIME_DELAY_ANIMATE)
+//            AnimatorUtils.animateAlpha(reaction, 255, DEFAULT_TIME_DELAY_ANIMATE)
             gl_view_reaction.reactionList.add(reaction)
             gl_view_reaction.onResume()
         }
@@ -123,11 +127,17 @@ class ReactionActivity : AppCompatActivity() {
         val y: Float = (gl_view_reaction.height - 100).toFloat()
 
         val scaleRatio = if (editTextScaleRatio.text.toString().isEmpty()) {
-            0.1f
+            1.0f
         } else {
             editTextScaleRatio.text.toString().toFloat()
         }
         val alpha = 255
+        val glPath = GLPath(
+                width = gl_view_reaction.width,
+                height = gl_view_reaction.height,
+                ratioScreen = (gl_view_reaction.height / gl_view_reaction.width).toFloat()
+        )
+        glPath.pattern = if (random.nextInt() % 2 == 0) GLPath.STRAIGHT_LEFT_STRAIGHT else GLPath.STRAIGHT_RIGHT_STRAIGHT
 
         return Reaction(
                 PointF(x, y),
@@ -138,7 +148,8 @@ class ReactionActivity : AppCompatActivity() {
                 bitmap = bitmap,
                 textureFilter = textureFilter,
                 scaleSizeRatio = scaleRatio,
-                alpha = alpha
+                alpha = alpha,
+                glPath = glPath
         )
     }
 

@@ -16,6 +16,8 @@
  *
  */
 
+@file:Suppress("unused")
+
 package jp.eita.canvasgl
 
 import android.graphics.PointF
@@ -23,13 +25,15 @@ import kotlin.math.*
 
 object MathUtils {
 
-    const val DEFAULT_FPS: Int = 60
+    private const val DEFAULT_LAMBDA = 10f
 
-    fun generateCurve(pointFrom: PointF, pointTo: PointF, radius: Float, distance: Float): ArrayList<PointF> {
+    private const val DEFAULT_SPEED: Int = 15
+
+    fun generateCurve(pointFrom: PointF, pointTo: PointF, radius: Float, speed: Int = DEFAULT_SPEED): ArrayList<PointF> {
         val result: ArrayList<PointF> = ArrayList()
         val dist: Float = distanceOf(pointFrom, pointTo)
         val h = sqrt(radius * radius - dist * dist / 4.0)
-        val angleStep: Float = (distance / radius.toDouble()).toFloat()
+        val angleStep: Float = speed / radius
         if (2.0f * radius <= dist) {
             throw Error("Radius is too small")
         }
@@ -45,9 +49,9 @@ object MathUtils {
         val u2: Float = (y1 - x1) / dist
         val o1: Float = (m1 + h * u1).toFloat()
         val o2: Float = (m2 + h * u2).toFloat()
-        val o = PointF(o1, o2)
-        val startAngle: Float = getAngle(pointFrom, o, radius)
-        var endAngle: Float = getAngle(pointTo, o, radius)
+        val pointCenter = PointF(o1, o2)
+        val startAngle: Float = getAngle(pointFrom, pointCenter, radius)
+        var endAngle: Float = getAngle(pointTo, pointCenter, radius)
         if (endAngle < startAngle) {
             endAngle += 2.0f * Math.PI.toFloat()
         }
@@ -62,7 +66,7 @@ object MathUtils {
         return result
     }
 
-    fun getAngle(pointX: PointF, pointY: PointF, radius: Float): Float {
+    private fun getAngle(pointX: PointF, pointY: PointF, radius: Float): Float {
         val cosA: Float = (pointX.x - pointY.x) / radius
         val sinA: Float = (pointX.y - pointY.y) / radius
         val angle: Float = acos(cosA)
@@ -74,28 +78,46 @@ object MathUtils {
         })
     }
 
-    fun distanceOf(pointX: PointF, pointY: PointF): Float {
+    private fun distanceOf(pointX: PointF, pointY: PointF): Float {
         return hypot(pointX.x - pointY.x, pointX.y - pointY.y)
     }
 
-    fun generateLine(pointFrom: PointF, pointTo: PointF, rationDistance: Int = DEFAULT_FPS): List<PointF> {
+    fun generateLine(pointFrom: PointF, pointTo: PointF, speed: Int = DEFAULT_SPEED): List<PointF> {
         val result = ArrayList<PointF>()
-        val distance: Float = distanceOf(pointFrom, pointTo)
-        val distanceRatio: Float = distance / rationDistance
+        val distance = distanceOf(pointFrom, pointTo)
         val distanceFromO = distanceOf(pointFrom, PointF(0f, 0f))
         val distanceToO = distanceOf(pointTo, PointF(0f, 0f))
 
-        var delta = 0f
-        for (i in 0 until rationDistance) {
+        var deltaX = 0f
+        var deltaY = 0f
+        var flag = 0f
+        while (flag < distance) {
+            val lambda = DEFAULT_LAMBDA + speed
+            flag += lambda
             if (distanceFromO > distanceToO) {
-                delta -= distanceRatio
+                deltaX -= if (pointFrom.x == pointTo.x) 0f else lambda
+                deltaY -= if (pointFrom.y == pointTo.y) 0f else lambda
             } else {
-                delta += distanceRatio
+                deltaX += if (pointFrom.x == pointTo.x) 0f else lambda
+                deltaY += if (pointFrom.y == pointTo.y) 0f else lambda
             }
-            val x = pointFrom.x + delta
-            val y = pointFrom.y + delta
+            val x = if (pointTo.x >= 0) pointFrom.x + deltaX else pointFrom.x - deltaX
+            val y = if (pointTo.y >= 0) pointFrom.y + deltaY else pointFrom.y - deltaY
             val pointF = PointF(x, y)
             result.add(pointF)
+        }
+
+        // Relocation last item
+        if (result.isNotEmpty()) {
+            val lastLocation = result.size - 1
+            when {
+                result[lastLocation].x != pointTo.x -> {
+                    result[lastLocation].x = pointTo.x
+                }
+                result[lastLocation].y != pointTo.y -> {
+                    result[lastLocation].y = pointTo.y
+                }
+            }
         }
 
         return result

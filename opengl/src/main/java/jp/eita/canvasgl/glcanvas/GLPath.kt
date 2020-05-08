@@ -20,7 +20,6 @@ package jp.eita.canvasgl.glcanvas
 
 import android.graphics.PointF
 import jp.eita.canvasgl.MathUtils
-import kotlin.math.abs
 
 class GLPath(
 
@@ -39,10 +38,6 @@ class GLPath(
         }
 
     lateinit var pointArray: List<PointF>
-
-    init {
-        pattern = STRAIGHT_LEFT_STRAIGHT
-    }
 
     private fun checkValidPattern(pattern: IntArray) {
         if (pattern.size != LENGTH_MATRIX * LENGTH_MATRIX) {
@@ -70,88 +65,51 @@ class GLPath(
         val moveX = rationOfBox * width
         val moveY = rationOfBox * height
         val result: MutableList<PointF> = ArrayList()
-        val size = pattern.size
+        val listOneValuePosition = ArrayList<PointF>()
+
+        // Find position of all one value from pattern.
+        var size = pattern.size
         for (i in size - 1 downTo 0) {
             val col: Int = i % LENGTH_MATRIX
             val row: Int = i / LENGTH_MATRIX
-            var isFirstTime = false
             if (pattern[i] == 1) {
                 val x = moveX * col
                 val y = moveY * row
-                if (result.isEmpty()) {
-                    isFirstTime = true
-                }
-                val pointF = PointF(x, y)
-                result.add(pointF)
-                val lastPointF: PointF? = if (isFirstTime) {
-                    null
-                } else {
-                    result[result.size - 1]
-                }
-                val currentPointF: PointF? = if (result.size < 2) null else result[result.size - 2]
-                createSubMatrix(
-                        currentPointF = currentPointF,
-                        lastPointF = lastPointF,
-                        listPoint = result
-                )
-
+                val point = PointF(x, y)
+                listOneValuePosition.add(point)
             }
         }
-        result.add(PointF(-400f, -1000f))
+
+        // Generate list point (path) by pattern.
+        size = listOneValuePosition.size
+        for (i in 1 until size) {
+            val currentPoint = listOneValuePosition[i]
+            val lastPoint = listOneValuePosition[i - 1]
+            val isDifferentX = lastPoint.x != currentPoint.x
+            val isDifferentY = lastPoint.y != currentPoint.y
+            when {
+                isDifferentX && isDifferentY -> {
+                    val listCurve = MathUtils.generateCurve(lastPoint, currentPoint, 320f, speed = 10)
+                    result.addAll(listCurve)
+                }
+                else -> {
+                    val listLine = MathUtils.generateLine(lastPoint, currentPoint, speed = 10)
+                    result.addAll(listLine)
+                }
+            }
+
+            if (i == size - 1) {
+                val listLine = MathUtils.generateLine(currentPoint, PointF(currentPoint.x, currentPoint.y - 400), speed = 10)
+                result.addAll(listLine)
+            }
+        }
 
         return result
-    }
-
-    private fun createSubMatrix(
-            currentPointF: PointF?,
-            lastPointF: PointF?,
-            listPoint: MutableList<PointF>
-    ) {
-        if (currentPointF == null || lastPointF == null) {
-            return
-        }
-        listPoint.remove(lastPointF)
-
-        val deltaX: Float = if (lastPointF.x != currentPointF.x) {
-            abs(abs(lastPointF.x) - abs(currentPointF.x)) / LENGTH_TINY_SUB_MATRIX
-        } else {
-            0.0f
-        }
-        val deltaY: Float = if (lastPointF.y != currentPointF.y) {
-            val distanceY = abs(abs(lastPointF.y) - abs(currentPointF.y))
-            distanceY / LENGTH_TINY_SUB_MATRIX
-        } else {
-            0.0f
-        }
-
-        // Begin creating curve line
-        if (deltaX != 0f && deltaY != 0f) {
-            val listCurvePoint = MathUtils.generateCurve(
-                    pointFrom = currentPointF,
-                    pointTo = lastPointF,
-                    radius = 300f,
-                    distance = 15f
-            )
-            listPoint.addAll(listCurvePoint)
-        }
-
-        var ladderDeltaX: Float = deltaX
-        var ladderDeltaY: Float = deltaY
-        for (k in 0 until LENGTH_TINY_SUB_MATRIX) {
-            val x = currentPointF.x - ladderDeltaX
-            ladderDeltaX += deltaX
-            val y = currentPointF.y - ladderDeltaY
-            ladderDeltaY += deltaY
-            val pointF = PointF(x, y)
-            listPoint.add(pointF)
-        }
     }
 
     companion object {
 
         const val LENGTH_MATRIX: Int = 9
-
-        const val LENGTH_TINY_SUB_MATRIX: Int = 4
 
         val EMPTY: IntArray = intArrayOf(
                 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -190,15 +148,15 @@ class GLPath(
         )
 
         val STRAIGHT_RIGHT_STRAIGHT: IntArray = intArrayOf(
-                0, 0, 0, 0, 0, 0, 0, 0, 0,
-                0, 0, 0, 0, 0, 0, 0, 0, 0,
-                0, 0, 0, 0, 0, 0, 0, 0, 0,
-                0, 0, 0, 0, 0, 0, 0, 0, 0,
-                0, 0, 0, 0, 0, 0, 0, 0, 0,
-                0, 0, 0, 0, 0, 0, 0, 0, 0,
-                0, 0, 0, 0, 0, 0, 0, 0, 0,
-                0, 0, 0, 0, 0, 0, 0, 0, 0,
-                0, 0, 0, 0, 0, 0, 0, 0, 0
+                0, 0, 0, 0, 1, 0, 0, 0, 0,
+                0, 0, 0, 0, 1, 0, 0, 0, 0,
+                0, 0, 0, 0, 1, 0, 0, 0, 0,
+                0, 0, 0, 0, 0, 1, 0, 0, 0,
+                0, 0, 0, 0, 0, 1, 0, 0, 0,
+                0, 0, 0, 0, 0, 1, 0, 0, 0,
+                0, 0, 0, 0, 1, 0, 0, 0, 0,
+                0, 0, 0, 0, 1, 0, 0, 0, 0,
+                0, 0, 0, 0, 1, 0, 0, 0, 0
         )
     }
 }

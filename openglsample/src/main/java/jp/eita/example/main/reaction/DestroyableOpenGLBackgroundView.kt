@@ -60,6 +60,6 @@ class DestroyableOpenGLBackgroundView : GLContinuousView {
 
     companion object {
 
-        private const val INTERNAL_TIME_MS = 20
+        private const val INTERNAL_TIME_MS = 40
     }
 }

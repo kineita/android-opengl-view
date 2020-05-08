@@ -21,6 +21,7 @@ package jp.eita.example.model
 import android.graphics.Bitmap
 import android.graphics.PointF
 import jp.eita.canvasgl.ICanvasGL
+import jp.eita.canvasgl.glcanvas.GLPath
 import jp.eita.canvasgl.textureFilter.BasicTextureFilter
 import jp.eita.canvasgl.textureFilter.TextureFilter
 
@@ -29,6 +30,10 @@ class Reaction : MovableObject {
     val bitmap: Bitmap
 
     private var textureFilter: TextureFilter
+
+    var glPath: GLPath? = null
+
+    var crawler = 0
 
     constructor(
             point: PointF,
@@ -39,10 +44,16 @@ class Reaction : MovableObject {
             scaleSizeRatio: Float = DEFAULT_SCALE_VALUE,
             alpha: Int = DEFAULT_ALPHA_VALUE,
             textureFilter: TextureFilter = BasicTextureFilter(),
-            bitmap: Bitmap
+            bitmap: Bitmap,
+            glPath: GLPath? = null
     ) : super(point, vx, vy, vRotate, rotateDegree, scaleSizeRatio, alpha) {
         this.textureFilter = textureFilter
         this.bitmap = bitmap
+        if (glPath != null) {
+            this.glPath = glPath
+            point.x = glPath.pointArray[0].x
+            point.y = glPath.pointArray[0].y
+        }
     }
 
     override fun glDraw(iCanvasGL: ICanvasGL) {
@@ -55,7 +66,16 @@ class Reaction : MovableObject {
     }
 
     override fun updatePosition(timeMs: Int) {
-        point.y += vy * timeMs
+        if (glPath != null) {
+            if (crawler >= glPath!!.pointArray.size) {
+                return
+            }
+            point.x = glPath!!.pointArray[crawler].x
+            point.y = glPath!!.pointArray[crawler].y
+            crawler++
+        } else {
+            point.y += vy * timeMs
+        }
     }
 
     override fun onDestroy() {

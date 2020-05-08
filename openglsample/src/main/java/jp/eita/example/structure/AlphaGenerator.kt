@@ -25,9 +25,6 @@ class AlphaGenerator(val originalValue: Int) {
             (originalValue * 0.8).toInt(),
             (originalValue * 0.7).toInt(),
             (originalValue * 0.4).toInt(),
-            (originalValue * 0.2).toInt(),
-            (originalValue * 0.4).toInt(),
-            (originalValue * 0.6).toInt(),
             (originalValue * 0.7).toInt(),
             (originalValue * 0.8).toInt(),
             originalValue
