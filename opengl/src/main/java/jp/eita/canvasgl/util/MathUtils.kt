@@ -18,7 +18,7 @@
 
 @file:Suppress("unused")
 
-package jp.eita.canvasgl
+package jp.eita.canvasgl.util
 
 import android.graphics.PointF
 import kotlin.math.*

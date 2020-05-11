@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package jp.eita.canvasgl
+package jp.eita.canvasgl.util
 
 import android.graphics.Bitmap
 import android.graphics.Point

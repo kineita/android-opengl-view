@@ -18,7 +18,7 @@ package jp.eita.canvasgl.textureFilter
 import android.opengl.GLES20
 import androidx.annotation.FloatRange
 import jp.eita.canvasgl.ICanvasGL
-import jp.eita.canvasgl.OpenGLUtil.setFloat
+import jp.eita.canvasgl.util.OpenGLUtil.setFloat
 import jp.eita.canvasgl.glcanvas.BasicTexture
 
 class HueFilter(@FloatRange(from = 0.0, to = 360.0) hue: Float) : BasicTextureFilter(), OneValueFilter {

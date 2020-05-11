@@ -22,6 +22,7 @@ import android.content.Context
 import android.util.AttributeSet
 import jp.eita.canvasgl.ICanvasGL
 import jp.eita.canvasgl.glview.GLContinuousView
+import jp.eita.canvasgl.util.Loggers
 import jp.eita.example.model.Reaction
 import java.util.*
 
@@ -36,6 +37,7 @@ class DestroyableOpenGLBackgroundView : GLContinuousView {
     override fun onGLDraw(canvas: ICanvasGL) {
         val iterator: MutableIterator<Reaction> = reactionList.iterator()
         while (iterator.hasNext()) {
+            Loggers.d("Testing", "reactionList size = ${reactionList.size}")
             val reaction = iterator.next()
             if (isOutOfRange(reaction)) {
                 // Clear old reaction to release it.

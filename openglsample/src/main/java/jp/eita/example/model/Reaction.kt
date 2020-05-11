@@ -21,39 +21,42 @@ package jp.eita.example.model
 import android.graphics.Bitmap
 import android.graphics.PointF
 import jp.eita.canvasgl.ICanvasGL
-import jp.eita.canvasgl.glcanvas.GLPath
+import jp.eita.canvasgl.pathManager.BezierPathManager
 import jp.eita.canvasgl.textureFilter.BasicTextureFilter
 import jp.eita.canvasgl.textureFilter.TextureFilter
+import jp.eita.canvasgl.util.MathUtils
 
-class Reaction : MovableObject {
+class Reaction(
 
-    val bitmap: Bitmap
+        point: PointF,
 
-    private var textureFilter: TextureFilter
+        vx: Float,
 
-    var glPath: GLPath? = null
+        vy: Float,
 
-    var crawler = 0
+        vRotate: Float,
 
-    constructor(
-            point: PointF,
-            vx: Float,
-            vy: Float,
-            vRotate: Float,
-            rotateDegree: Float = DEFAULT_ROTATE_DEGREE,
-            scaleSizeRatio: Float = DEFAULT_SCALE_VALUE,
-            alpha: Int = DEFAULT_ALPHA_VALUE,
-            textureFilter: TextureFilter = BasicTextureFilter(),
-            bitmap: Bitmap,
-            glPath: GLPath? = null
-    ) : super(point, vx, vy, vRotate, rotateDegree, scaleSizeRatio, alpha) {
-        this.textureFilter = textureFilter
-        this.bitmap = bitmap
-        if (glPath != null) {
-            this.glPath = glPath
-            point.x = glPath.pointArray[0].x
-            point.y = glPath.pointArray[0].y
-        }
+        rotateDegree: Float = DEFAULT_ROTATE_DEGREE,
+
+        scaleSizeRatio: Float = DEFAULT_SCALE_VALUE,
+
+        alpha: Int = DEFAULT_ALPHA_VALUE,
+
+        private var textureFilter: TextureFilter = BasicTextureFilter(),
+
+        val bitmap: Bitmap,
+
+        pathManager: BezierPathManager
+
+) : MovableObject(point, vx, vy, vRotate, rotateDegree, scaleSizeRatio, alpha) {
+
+    private val listPostion: ArrayList<PointF> = ArrayList()
+
+    private var crawlerListPosition: Int = 0
+
+    init {
+        listPostion.addAll(pathManager.generateListPoint())
+        listPostion.addAll(MathUtils.generateLine(PointF(point.x, -bitmap.height - 50f), PointF(-bitmap.height - 50f, -bitmap.height - 50f)))
     }
 
     override fun glDraw(iCanvasGL: ICanvasGL) {
@@ -66,16 +69,12 @@ class Reaction : MovableObject {
     }
 
     override fun updatePosition(timeMs: Int) {
-        if (glPath != null) {
-            if (crawler >= glPath!!.pointArray.size) {
-                return
-            }
-            point.x = glPath!!.pointArray[crawler].x
-            point.y = glPath!!.pointArray[crawler].y
-            crawler++
-        } else {
-            point.y += vy * timeMs
+        if (crawlerListPosition >= listPostion.size) {
+            return
         }
+        point.x = listPostion[crawlerListPosition].x
+        point.y = listPostion[crawlerListPosition].y
+        crawlerListPosition++
     }
 
     override fun onDestroy() {

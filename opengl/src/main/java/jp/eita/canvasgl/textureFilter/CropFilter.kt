@@ -17,7 +17,7 @@ package jp.eita.canvasgl.textureFilter
 
 import android.opengl.GLES20
 import jp.eita.canvasgl.ICanvasGL
-import jp.eita.canvasgl.OpenGLUtil.setFloat
+import jp.eita.canvasgl.util.OpenGLUtil.setFloat
 import jp.eita.canvasgl.glcanvas.BasicTexture
 
 class CropFilter(var left: Float, var top: Float, var right: Float, var bottom: Float) : BasicTextureFilter() {

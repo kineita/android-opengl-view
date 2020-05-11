@@ -22,8 +22,8 @@ import android.os.Handler
 import android.text.Editable
 import android.text.TextWatcher
 import androidx.appcompat.app.AppCompatActivity
-import jp.eita.canvasgl.BitmapUtils
-import jp.eita.canvasgl.OpenGLUtil
+import jp.eita.canvasgl.util.BitmapUtils
+import jp.eita.canvasgl.util.OpenGLUtil
 import jp.eita.canvasgl.textureFilter.*
 import jp.eita.example.R
 import jp.eita.example.model.Bubble

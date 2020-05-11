@@ -22,7 +22,7 @@ import android.util.AttributeSet
 import androidx.annotation.ColorInt
 import jp.eita.canvasgl.CanvasGL
 import jp.eita.canvasgl.ICanvasGL
-import jp.eita.canvasgl.OpenGLUtil.createBitmapFromGLSurface
+import jp.eita.canvasgl.util.OpenGLUtil.createBitmapFromGLSurface
 import jp.eita.canvasgl.glview.GLView.GetDrawingCacheCallback
 import jp.eita.canvasgl.util.Loggers
 

@@ -23,10 +23,10 @@ import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
 import androidx.appcompat.app.AppCompatActivity
-import jp.eita.canvasgl.BitmapUtils
-import jp.eita.canvasgl.glcanvas.GLPath
+import jp.eita.canvasgl.pathManager.BezierPathManager
 import jp.eita.canvasgl.textureFilter.BasicTextureFilter
 import jp.eita.canvasgl.textureFilter.TextureFilter
+import jp.eita.canvasgl.util.BitmapUtils
 import jp.eita.example.AnimatorUtils
 import jp.eita.example.R
 import jp.eita.example.model.Reaction
@@ -36,12 +36,17 @@ import kotlinx.android.synthetic.main.activity_opengl_reaction.*
 import java.util.*
 import kotlin.collections.ArrayList
 
-
 class ReactionActivity : AppCompatActivity() {
 
     private val upFilterList: MutableList<TextureFilter> = ArrayList()
 
     private lateinit var bitmap: Bitmap
+
+    private val pathManager = BezierPathManager(3)
+
+    init {
+        pathManager.acceleration = 60
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -55,29 +60,26 @@ class ReactionActivity : AppCompatActivity() {
 
     private fun setUpBitmap() {
         bitmap = BitmapUtils.convertToBitmapFrom(applicationContext, R.drawable.ic_fast_food)!!
-//        BitmapUtils.adjustOpacity(bitmap = bitmap, opacity = 120)
-//        bitmap = BitmapUtils.getScaledDownBitmap(bitmap, 64, false)
-//        anim_gl_view.alpha = 0.6f
     }
 
     private fun setUpEditTextScaleRatio() {
         editTextScaleRatio.addTextChangedListener(object : TextWatcher {
 
             override fun afterTextChanged(s: Editable?) {
-                try {
-                    val value: Double = if (s == null || s.toString() == "") {
-                        return
-                    } else if (s.toString() == "0.") {
-                        0.1
-                    } else {
-                        s.toString().toDouble()
-                    }
-                    gl_view_reaction.onPause()
-//                    anim_gl_view.updateScaleRatioForAllBubbles(value.toFloat())
-                    gl_view_reaction.onResume()
-                } catch (ex: Exception) {
-
-                }
+//                try {
+//                    val value: Double = if (s == null || s.toString() == "") {
+//                        return
+//                    } else if (s.toString() == "0.") {
+//                        0.1
+//                    } else {
+//                        s.toString().toDouble()
+//                    }
+//                    gl_view_reaction.onPause()
+////                    anim_gl_view.updateScaleRatioForAllBubbles(value.toFloat())
+//                    gl_view_reaction.onResume()
+//                } catch (ex: Exception) {
+//
+//                }
             }
 
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
@@ -93,11 +95,6 @@ class ReactionActivity : AppCompatActivity() {
 
     private fun initFilterList(filterList: MutableList<TextureFilter>) {
         filterList.add(BasicTextureFilter())
-//        filterList.add(PixelationFilter(1f))
-//        filterList.add(ContrastFilter(1.6f))
-//        filterList.add(SaturationFilter(1.6f))
-//        filterList.add(PixelationFilter(12F))
-//        filterList.add(HueFilter(100F))
     }
 
     private fun setUpButtonLike() {
@@ -109,7 +106,7 @@ class ReactionActivity : AppCompatActivity() {
             } else {
                 editTextScaleRatio.text.toString().toFloat()
             }, DEFAULT_TIME_DELAY_ANIMATE)
-//            AnimatorUtils.animateAlpha(reaction, 255, DEFAULT_TIME_DELAY_ANIMATE)
+            AnimatorUtils.animateAlpha(reaction, 255, DEFAULT_TIME_DELAY_ANIMATE)
             gl_view_reaction.reactionList.add(reaction)
             gl_view_reaction.onResume()
         }
@@ -132,15 +129,20 @@ class ReactionActivity : AppCompatActivity() {
             editTextScaleRatio.text.toString().toFloat()
         }
         val alpha = 255
-        val glPath = GLPath(
-                width = gl_view_reaction.width,
-                height = gl_view_reaction.height,
-                ratioScreen = (gl_view_reaction.height / gl_view_reaction.width).toFloat()
-        )
-        glPath.pattern = if (random.nextInt() % 2 == 0) GLPath.STRAIGHT_LEFT_STRAIGHT else GLPath.STRAIGHT_RIGHT_STRAIGHT
+        val point = PointF(x, y)
+        if(random.nextInt() % 2 == 0) {
+            pathManager[0] = point
+            pathManager[1] = PointF(point.x - 200, 500f)
+            pathManager[2] = PointF(point.x, -bitmap.height - 50f)
+        } else {
+            pathManager[0] = point
+            pathManager[1] = PointF(point.x + 200, 500f)
+            pathManager[2] = PointF(point.x, -bitmap.height - 50f)
+        }
+        pathManager.generatePath()
 
         return Reaction(
-                PointF(x, y),
+                point,
                 vx,
                 vy,
                 vRotate,
@@ -149,7 +151,7 @@ class ReactionActivity : AppCompatActivity() {
                 textureFilter = textureFilter,
                 scaleSizeRatio = scaleRatio,
                 alpha = alpha,
-                glPath = glPath
+                pathManager = pathManager
         )
     }
 

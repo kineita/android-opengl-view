@@ -18,7 +18,7 @@ package jp.eita.canvasgl.textureFilter
 import android.opengl.GLES20
 import androidx.annotation.FloatRange
 import jp.eita.canvasgl.ICanvasGL
-import jp.eita.canvasgl.OpenGLUtil.setFloat
+import jp.eita.canvasgl.util.OpenGLUtil.setFloat
 import jp.eita.canvasgl.glcanvas.BasicTexture
 
 class PixelationFilter(@param:FloatRange(from = 1.0, to = 100.0) private var pixel: Float) : BasicTextureFilter(), OneValueFilter {

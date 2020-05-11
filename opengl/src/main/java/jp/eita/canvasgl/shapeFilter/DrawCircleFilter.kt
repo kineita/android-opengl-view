@@ -13,11 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package jp.eita.canvasgl.shapeFilter
 
 import android.opengl.GLES20
 import jp.eita.canvasgl.ICanvasGL
-import jp.eita.canvasgl.OpenGLUtil.setFloat
+import jp.eita.canvasgl.util.OpenGLUtil.setFloat
 
 class DrawCircleFilter : BasicDrawShapeFilter() {
 
@@ -30,6 +31,7 @@ class DrawCircleFilter : BasicDrawShapeFilter() {
     }
 
     companion object {
+
         const val VARYING_DRAW_REGION_COORD = "vDrawRegionCoord"
 
         const val VERTEXT_SHADER = (""

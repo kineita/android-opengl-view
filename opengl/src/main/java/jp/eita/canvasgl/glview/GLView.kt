@@ -23,7 +23,7 @@ import android.opengl.GLSurfaceView
 import android.util.AttributeSet
 import jp.eita.canvasgl.CanvasGL
 import jp.eita.canvasgl.ICanvasGL
-import jp.eita.canvasgl.OpenGLUtil.createBitmapFromGLSurface
+import jp.eita.canvasgl.util.OpenGLUtil.createBitmapFromGLSurface
 import javax.microedition.khronos.egl.EGLConfig
 import javax.microedition.khronos.opengles.GL10
 
