@@ -25,16 +25,25 @@ import jp.eita.canvasgl.glview.GLContinuousView
 import jp.eita.canvasgl.util.Loggers
 import jp.eita.example.model.Reaction
 import java.util.*
+import kotlin.collections.ArrayList
 
 class DestroyableOpenGLBackgroundView : GLContinuousView {
 
-    val reactionList: MutableList<Reaction> = ArrayList()
+    private val reactionList: MutableList<Reaction> = ArrayList()
+
+    private val reactionListTemp: MutableList<Reaction> = ArrayList()
 
     constructor(context: Context?) : super(context)
 
     constructor(context: Context?, attrs: AttributeSet?) : super(context, attrs)
 
+    fun addReaction(reaction: Reaction) {
+        reactionListTemp.add(reaction)
+    }
+
     override fun onGLDraw(canvas: ICanvasGL) {
+        reactionList.addAll(reactionListTemp)
+        reactionListTemp.clear()
         val iterator: MutableIterator<Reaction> = reactionList.iterator()
         while (iterator.hasNext()) {
             Loggers.d("Testing", "reactionList size = ${reactionList.size}")

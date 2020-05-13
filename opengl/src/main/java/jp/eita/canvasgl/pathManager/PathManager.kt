@@ -25,13 +25,16 @@ abstract class PathManager {
 
     open var acceleration: Int = 20
 
+    protected var path: Path? = null
+
+    constructor()
+
+    constructor(path: Path) {
+        this.path = path
+    }
+
     /**
      * @return path which is List[PointF] after calculating.
      */
     abstract fun generateListPoint(): List<PointF>
-
-    /**
-     * @param path
-     */
-    open fun generatePath(path: Path? = null) = Unit
 }

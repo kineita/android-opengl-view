@@ -107,7 +107,7 @@ class ReactionActivity : AppCompatActivity() {
                 editTextScaleRatio.text.toString().toFloat()
             }, DEFAULT_TIME_DELAY_ANIMATE)
             AnimatorUtils.animateAlpha(reaction, 255, DEFAULT_TIME_DELAY_ANIMATE)
-            gl_view_reaction.reactionList.add(reaction)
+            gl_view_reaction.addReaction(reaction)
             gl_view_reaction.onResume()
         }
     }
@@ -139,7 +139,6 @@ class ReactionActivity : AppCompatActivity() {
             pathManager[1] = PointF(point.x + 200, 500f)
             pathManager[2] = PointF(point.x, -bitmap.height - 50f)
         }
-        pathManager.generatePath()
 
         return Reaction(
                 point,

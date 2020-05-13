@@ -22,27 +22,28 @@ import android.graphics.Path
 import android.graphics.PointF
 import jp.eita.canvasgl.util.PositionUtil
 
-class BezierPathManager(private var knots: Int) : PathManager() {
+class BezierPathManager : PathManager {
 
-    private var mX: FloatArray
+    private var knots: Int = DEFAULT_KNOTS_EMPTY_VALUE
 
-    private var mY: FloatArray
+    private lateinit var mX: FloatArray
 
-    private var pX1: FloatArray
+    private lateinit var mY: FloatArray
 
-    private var pY1: FloatArray
+    private lateinit var pX1: FloatArray
 
-    private var pX2: FloatArray
+    private lateinit var pY1: FloatArray
 
-    private var pY2: FloatArray
+    private lateinit var pX2: FloatArray
+
+    private lateinit var pY2: FloatArray
 
     private var resolved = false
 
     private var resolver: ControlPointsResolver? = null
 
-    private var path: Path? = null
-
-    init {
+    constructor(knots: Int) : super() {
+        this.knots = knots
         require(knots > 1) { "At least two knot points required" }
         mX = FloatArray(knots)
         mY = FloatArray(knots)
@@ -52,6 +53,8 @@ class BezierPathManager(private var knots: Int) : PathManager() {
         pX2 = FloatArray(segments)
         pY2 = FloatArray(segments)
     }
+
+    constructor(path: Path) : super(path)
 
     /**
      * Gets knots count.
@@ -143,42 +146,14 @@ class BezierPathManager(private var knots: Int) : PathManager() {
     }
 
     override fun generateListPoint(): List<PointF> {
-        ensureResolved()
-        path?.let {
-            return PositionUtil.convertPathToListPoint(path = it, acceleration = acceleration)
-        }
-
-        throw IllegalArgumentException("Please set path before generate list point.}")
-    }
-
-    /**
-     * Applies resolved control points to the specified Path.
-     */
-    override fun generatePath(path: Path?) {
-        ensureResolved()
-        if (path != null) {
-            this.path = path
+        if (path != null && knots == DEFAULT_KNOTS_EMPTY_VALUE) {
+            return PositionUtil.convertPathToListPoint(path = path!!, acceleration = acceleration)
         } else {
-            val pathGenerated = Path()
-            pathGenerated.reset()
-            pathGenerated.moveTo(mX[0], mY[0])
-            val segments = knots - 1
-            if (segments == 1) {
-                pathGenerated.lineTo(mX[1], mY[1])
-            } else {
-                for (segment in 0 until segments) {
-                    val knot = segment + 1
-                    pathGenerated.cubicTo(
-                            pX1[segment],
-                            pY1[segment],
-                            pX2[segment],
-                            pY2[segment],
-                            mX[knot],
-                            mY[knot])
-                }
-            }
+            ensureResolved()
+            generatePath()
 
-            this.path = pathGenerated
+            return PositionUtil.convertPathToListPoint(path = path!!, acceleration = acceleration)
+
         }
     }
 
@@ -199,6 +174,32 @@ class BezierPathManager(private var knots: Int) : PathManager() {
             }
             resolved = true
         }
+    }
+
+    /**
+     * Applies resolved control points to the specified Path.
+     */
+    private fun generatePath() {
+        val pathGenerated = Path()
+        pathGenerated.reset()
+        pathGenerated.moveTo(mX[0], mY[0])
+        val segments = knots - 1
+        if (segments == 1) {
+            pathGenerated.lineTo(mX[1], mY[1])
+        } else {
+            for (segment in 0 until segments) {
+                val knot = segment + 1
+                pathGenerated.cubicTo(
+                        pX1[segment],
+                        pY1[segment],
+                        pX2[segment],
+                        pY2[segment],
+                        mX[knot],
+                        mY[knot])
+            }
+        }
+
+        this.path = pathGenerated
     }
 
     private class ControlPointsResolver internal constructor(private val segments: Int) {
@@ -256,5 +257,10 @@ class BezierPathManager(private var knots: Int) : PathManager() {
             }
             p2[last] = (k[segments] + p1[segments - 1]) / 2f
         }
+    }
+
+    companion object {
+
+        const val DEFAULT_KNOTS_EMPTY_VALUE = 0
     }
 }
