@@ -21,9 +21,10 @@ package jp.eita.example.model
 import android.graphics.Bitmap
 import android.graphics.PointF
 import jp.eita.canvasgl.ICanvasGL
-import jp.eita.canvasgl.pathManager.BezierPathManager
+import jp.eita.canvasgl.pathManager.bezier.BezierPathManager
 import jp.eita.canvasgl.textureFilter.BasicTextureFilter
 import jp.eita.canvasgl.textureFilter.TextureFilter
+import jp.eita.canvasgl.util.Loggers
 import jp.eita.canvasgl.util.MathUtils
 
 class Reaction(
@@ -56,6 +57,7 @@ class Reaction(
 
     init {
         listPostion.addAll(pathManager.generateListPoint())
+        Loggers.d("Testing", "Size = ${listPostion.size}")
         listPostion.addAll(MathUtils.generateLine(PointF(point.x, -bitmap.height - 50f), PointF(-bitmap.height - 50f, -bitmap.height - 50f)))
     }
 

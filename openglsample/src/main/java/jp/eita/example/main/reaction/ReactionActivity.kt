@@ -23,7 +23,8 @@ import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
 import androidx.appcompat.app.AppCompatActivity
-import jp.eita.canvasgl.pathManager.BezierPathManager
+import jp.eita.canvasgl.pathManager.bezier.BezierPathManager
+import jp.eita.canvasgl.pathManager.bezier.BezierPathManagerConfig
 import jp.eita.canvasgl.textureFilter.BasicTextureFilter
 import jp.eita.canvasgl.textureFilter.TextureFilter
 import jp.eita.canvasgl.util.BitmapUtils
@@ -42,10 +43,11 @@ class ReactionActivity : AppCompatActivity() {
 
     private lateinit var bitmap: Bitmap
 
-    private val pathManager = BezierPathManager(3)
+    private val pathManager = BezierPathManager()
 
     init {
-        pathManager.acceleration = 60
+        pathManager.config.point = BezierPathManagerConfig.PointConfig(3)
+        pathManager.config.point!!.size = 60
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -130,14 +132,14 @@ class ReactionActivity : AppCompatActivity() {
         }
         val alpha = 255
         val point = PointF(x, y)
-        if(random.nextInt() % 2 == 0) {
-            pathManager[0] = point
-            pathManager[1] = PointF(point.x - 200, 500f)
-            pathManager[2] = PointF(point.x, -bitmap.height - 50f)
+        if (random.nextInt() % 2 == 0) {
+            pathManager.config.point!![0] = point
+            pathManager.config.point!![1] = PointF(point.x - 200, 500f)
+            pathManager.config.point!![2] = PointF(point.x, -bitmap.height - 50f)
         } else {
-            pathManager[0] = point
-            pathManager[1] = PointF(point.x + 200, 500f)
-            pathManager[2] = PointF(point.x, -bitmap.height - 50f)
+            pathManager.config.point!![0] = point
+            pathManager.config.point!![1] = PointF(point.x + 200, 500f)
+            pathManager.config.point!![2] = PointF(point.x, -bitmap.height - 50f)
         }
 
         return Reaction(

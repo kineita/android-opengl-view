@@ -16,26 +16,24 @@
  *
  */
 
-package jp.eita.canvasgl.pathManager
+package jp.eita.canvasgl.pathManager.bezier
 
 import android.graphics.PointF
+import jp.eita.canvasgl.pathManager.PathManager
+import jp.eita.canvasgl.util.PositionUtil
 
-open class PathManager<T : PathManagerConfig<*, *, *>> {
+class BezierPathManager : PathManager<BezierPathManagerConfig>() {
 
-    lateinit var config: T
+    init {
+        config = BezierPathManagerConfig()
+    }
 
-    /**
-     * @return path which is List[PointF] after calculating.
-     */
-    open fun generateListPoint(): List<PointF> = emptyList()
+    override fun generateListPoint(): List<PointF> {
+        config.point?.let { pointConfig ->
+            val path = pointConfig.generatePath()
+            return PositionUtil.convertPathToListPoint(path, pointConfig.size)
+        }
 
-    /**
-     * @return list alpha.
-     */
-    open fun generateListAlpha(): List<Int> = emptyList()
-
-    /**
-     * @return list scale size.
-     */
-    open fun generateListScaleSize(): List<Float> = emptyList()
+        throw IllegalArgumentException("Please config ${BezierPathManager::class.simpleName} point configuration first.")
+    }
 }
