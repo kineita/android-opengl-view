@@ -23,12 +23,13 @@ import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
 import androidx.appcompat.app.AppCompatActivity
+import jp.eita.canvasgl.pathManager.PathManagerConfig.AlphaConfig
+import jp.eita.canvasgl.pathManager.PathManagerConfig.ScaleSizeConfig
 import jp.eita.canvasgl.pathManager.bezier.BezierPathManager
 import jp.eita.canvasgl.pathManager.bezier.BezierPathManagerConfig
 import jp.eita.canvasgl.textureFilter.BasicTextureFilter
 import jp.eita.canvasgl.textureFilter.TextureFilter
 import jp.eita.canvasgl.util.BitmapUtils
-import jp.eita.example.AnimatorUtils
 import jp.eita.example.R
 import jp.eita.example.model.Reaction
 import kotlinx.android.synthetic.main.activity_opengl_bubble.buttonLike
@@ -48,6 +49,19 @@ class ReactionActivity : AppCompatActivity() {
     init {
         pathManager.config.point = BezierPathManagerConfig.PointConfig(3)
         pathManager.config.point!!.size = 60
+        pathManager.config.scaleSize = BezierPathManagerConfig.ScaleSizeConfig()
+        pathManager.config.scaleSize!!.size = 60
+        pathManager.config.scaleSize!!
+                .addLevel(ScaleSizeConfig.Level(0, 1f))
+                .addLevel(ScaleSizeConfig.Level(20, 1.5f))
+                .addLevel(ScaleSizeConfig.Level(40, 1.8f))
+                .addLevel(ScaleSizeConfig.Level(60, 0.8f))
+        pathManager.config.alpha = BezierPathManagerConfig.AlphaConfig()
+        pathManager.config.alpha!!.size = 60
+        pathManager.config.alpha!!
+                .addLevel(AlphaConfig.Level(0, 150))
+                .addLevel(AlphaConfig.Level(30, 255))
+                .addLevel(AlphaConfig.Level(60, 120))
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -103,12 +117,12 @@ class ReactionActivity : AppCompatActivity() {
         buttonLike.setOnClickListener {
             gl_view_reaction.onPause()
             val reaction = createReaction(upFilterList)
-            AnimatorUtils.animateScaleSize(reaction, if (editTextScaleRatio.text.toString().isEmpty()) {
-                1.6f
-            } else {
-                editTextScaleRatio.text.toString().toFloat()
-            }, DEFAULT_TIME_DELAY_ANIMATE)
-            AnimatorUtils.animateAlpha(reaction, 255, DEFAULT_TIME_DELAY_ANIMATE)
+//            AnimatorUtils.animateScaleSize(reaction, if (editTextScaleRatio.text.toString().isEmpty()) {
+//                1.6f
+//            } else {
+//                editTextScaleRatio.text.toString().toFloat()
+//            }, DEFAULT_TIME_DELAY_ANIMATE)
+//            AnimatorUtils.animateAlpha(reaction, 255, DEFAULT_TIME_DELAY_ANIMATE)
             gl_view_reaction.addReaction(reaction)
             gl_view_reaction.onResume()
         }

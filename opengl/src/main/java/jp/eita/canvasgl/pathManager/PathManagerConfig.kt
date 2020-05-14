@@ -30,19 +30,73 @@ open class PathManagerConfig<POINT : PathManagerConfig.PointConfig
 
     open var scaleSize: SCALE? = null
 
-    open class Config(
+    open class BaseConfig(
             // This is number of points is created on screen.
-            open var size: Int = 40
+            open var size: Int = 60
     )
 
-    open class AlphaConfig : Config()
+    open class AlphaConfig : BaseConfig() {
 
-    open class ScaleSizeConfig : Config()
+        open val listLevel: MutableList<Level> = ArrayList()
+
+        open fun addLevel(level: Level): AlphaConfig {
+            if (listLevel.isNotEmpty()) {
+                val previousLevel = listLevel[listLevel.size - 1]
+                when {
+                    level.position <= previousLevel.position -> {
+                        throw IllegalArgumentException("$level is added which has position from <= $previousLevel, please set its position larger than.")
+                    }
+                    level.position > size -> {
+                        throw IllegalArgumentException("$level is added which has position >= $size, please set it smaller than.")
+                    }
+                }
+            }
+
+            listLevel.add(level)
+            return this
+        }
+
+        open class Level(val position: Int, val alpha: Int) {
+
+            override fun toString(): String {
+                return "AlphaConfig.Level(position=$position, alpha=$alpha)"
+            }
+        }
+    }
+
+    open class ScaleSizeConfig : BaseConfig() {
+
+        open val listLevel: MutableList<Level> = ArrayList()
+
+        open fun addLevel(level: Level): ScaleSizeConfig {
+            if (listLevel.isNotEmpty()) {
+                val previousLevel = listLevel[listLevel.size - 1]
+                when {
+                    level.position <= previousLevel.position -> {
+                        throw IllegalArgumentException("$level is added which has position from <= $previousLevel, please set its position larger than.")
+                    }
+                    level.position > size -> {
+                        throw IllegalArgumentException("$level is added which has position >= $size, please set it smaller than.")
+                    }
+                }
+            }
+
+            listLevel.add(level)
+            return this
+        }
+
+        open class Level(val position: Int, val scaleSizeRatio: Float) {
+
+            override fun toString(): String {
+                return "ScaleSizeConfig.Level(position=$position, scaleSizeRatio=$scaleSizeRatio)"
+            }
+        }
+    }
 
     /**
      * [PointConfig] will generate for your a [android.graphics.Path]
      */
-    open class PointConfig : Config {
+    open class PointConfig : BaseConfig {
 
         protected lateinit var path: Path
 

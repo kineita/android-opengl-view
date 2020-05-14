@@ -22,7 +22,7 @@ import android.graphics.Path
 import android.graphics.PointF
 import jp.eita.canvasgl.pathManager.PathManagerConfig
 
-class BezierPathManagerConfig : PathManagerConfig<BezierPathManagerConfig.PointConfig, PathManagerConfig.AlphaConfig, PathManagerConfig.ScaleSizeConfig>() {
+class BezierPathManagerConfig : PathManagerConfig<BezierPathManagerConfig.PointConfig, BezierPathManagerConfig.AlphaConfig, BezierPathManagerConfig.ScaleSizeConfig>() {
 
     open class PointConfig : PathManagerConfig.PointConfig {
 
@@ -250,8 +250,7 @@ class BezierPathManagerConfig : PathManagerConfig<BezierPathManagerConfig.PointC
         }
     }
 
-    open class ScaleSizeConfig : PathManagerConfig.AlphaConfig() {
+    open class ScaleSizeConfig : PathManagerConfig.ScaleSizeConfig()
 
-
-    }
+    open class AlphaConfig : PathManagerConfig.AlphaConfig()
 }

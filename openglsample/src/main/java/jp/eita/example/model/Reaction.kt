@@ -24,7 +24,6 @@ import jp.eita.canvasgl.ICanvasGL
 import jp.eita.canvasgl.pathManager.bezier.BezierPathManager
 import jp.eita.canvasgl.textureFilter.BasicTextureFilter
 import jp.eita.canvasgl.textureFilter.TextureFilter
-import jp.eita.canvasgl.util.Loggers
 import jp.eita.canvasgl.util.MathUtils
 
 class Reaction(
@@ -55,10 +54,19 @@ class Reaction(
 
     private var crawlerListPosition: Int = 0
 
+    private val listScaleSize: ArrayList<Float> = ArrayList()
+
+    private var crawlerListScaleSize: Int = 0
+
+    private val listAlpha: ArrayList<Int> = ArrayList()
+
+    private var crawlerListAlpha: Int = 0
+
     init {
         listPostion.addAll(pathManager.generateListPoint())
-        Loggers.d("Testing", "Size = ${listPostion.size}")
         listPostion.addAll(MathUtils.generateLine(PointF(point.x, -bitmap.height - 50f), PointF(-bitmap.height - 50f, -bitmap.height - 50f)))
+        listScaleSize.addAll(pathManager.generateListScaleSize())
+        listAlpha.addAll(pathManager.generateListAlpha())
     }
 
     override fun glDraw(iCanvasGL: ICanvasGL) {
@@ -71,12 +79,34 @@ class Reaction(
     }
 
     override fun updatePosition(timeMs: Int) {
+        runPosition()
+        runScaleSizeRatio()
+        runAlpha()
+    }
+
+    private fun runPosition() {
         if (crawlerListPosition >= listPostion.size) {
             return
         }
         point.x = listPostion[crawlerListPosition].x
         point.y = listPostion[crawlerListPosition].y
         crawlerListPosition++
+    }
+
+    private fun runScaleSizeRatio() {
+        if (crawlerListScaleSize >= listScaleSize.size) {
+            return
+        }
+        scaleSizeRatio = listScaleSize[crawlerListScaleSize]
+        crawlerListScaleSize++
+    }
+
+    private fun runAlpha() {
+        if (crawlerListAlpha >= listAlpha.size) {
+            return
+        }
+        alpha = listAlpha[crawlerListAlpha]
+        crawlerListAlpha++
     }
 
     override fun onDestroy() {
