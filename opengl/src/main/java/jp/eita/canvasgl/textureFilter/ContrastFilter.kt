@@ -37,8 +37,8 @@ class ContrastFilter(@param:FloatRange(from = 0.0, to = 4.0) private var contras
         setFloat(contrastLocation, contrast)
     }
 
-    override fun setValue(@FloatRange(from = 0.0, to = 4.0) contrast: Float) {
-        this.contrast = contrast
+    override fun setValue(@FloatRange(from = 0.0, to = 4.0) value: Float) {
+        this.contrast = value
     }
 
     companion object {

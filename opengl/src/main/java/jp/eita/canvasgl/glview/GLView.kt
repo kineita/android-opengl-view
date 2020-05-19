@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package jp.eita.canvasgl.glview
 
 import android.content.Context
@@ -40,17 +41,19 @@ abstract class GLView : GLSurfaceView, GLSurfaceView.Renderer {
     constructor(context: Context?, attrs: AttributeSet?) : super(context, attrs)
 
     init {
-        init()
+        initGLView()
     }
 
-    protected open fun init() {
-        setZOrderOnTop(true)
-        setEGLContextClientVersion(2)
-        setEGLConfigChooser(8, 8, 8, 8, 16, 0)
-        preserveEGLContextOnPause = true
-        holder.setFormat(PixelFormat.TRANSLUCENT)
-        setRenderer(this)
-        renderMode = RENDERMODE_WHEN_DIRTY
+    private fun initGLView() {
+        apply {
+            setZOrderOnTop(true)
+            setEGLContextClientVersion(2)
+            setEGLConfigChooser(8, 8, 8, 8, 16, 0)
+            preserveEGLContextOnPause = true
+            holder.setFormat(PixelFormat.TRANSLUCENT)
+            setRenderer(this)
+            renderMode = RENDERMODE_WHEN_DIRTY
+        }
     }
 
     override fun onSurfaceCreated(gl: GL10, config: EGLConfig) {
@@ -58,19 +61,19 @@ abstract class GLView : GLSurfaceView, GLSurfaceView.Renderer {
     }
 
     override fun onSurfaceChanged(gl: GL10, width: Int, height: Int) {
-        canvas!!.setSize(width, height)
+        canvas?.let {
+            it.setSize(width, height)
+            it
+        }
     }
 
     override fun onDrawFrame(gl: GL10) {
         this.gl = gl
-        canvas!!.clearBuffer()
-        onGLDraw(canvas!!)
+        canvas?.let {
+            it.clearBuffer()
+            onGLDraw(it)
+        }
     }
-
-    /**
-     * May call twice at first.
-     */
-    protected abstract fun onGLDraw(canvas: ICanvasGL)
 
     fun restart() {
         onResume()
@@ -78,10 +81,13 @@ abstract class GLView : GLSurfaceView, GLSurfaceView.Renderer {
 
     fun stop() {
         onPause()
-        canvas?.pause()
+        canvas?.let {
+            it.pause()
+            it
+        }
     }
 
-    fun destroy() {}
+    open fun destroy() { }
 
     override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
         super.onSizeChanged(w, h, oldw, oldh)
@@ -89,17 +95,21 @@ abstract class GLView : GLSurfaceView, GLSurfaceView.Renderer {
     }
 
     fun getDrawingBitmap(rect: Rect, getDrawingCacheCallback: GetDrawingCacheCallback) {
-        queueEvent(Runnable {
-            if (gl == null) {
-                return@Runnable
+        queueEvent {
+            gl?.let {
+                onDrawFrame(it)
+                onDrawFrame(it)
+                val bitmapFromGLSurface = createBitmapFromGLSurface(rect.left, rect.top, rect.right, rect.bottom, height)
+                post { getDrawingCacheCallback.onFetch(bitmapFromGLSurface) }
             }
-            onDrawFrame(gl!!)
-            onDrawFrame(gl!!)
-            val bitmapFromGLSurface = createBitmapFromGLSurface(rect.left, rect.top, rect.right, rect.bottom, height)
-            post { getDrawingCacheCallback.onFetch(bitmapFromGLSurface) }
-        })
+        }
         requestRender()
     }
+
+    /**
+     * May call twice at first.
+     */
+    protected abstract fun onGLDraw(canvas: ICanvasGL)
 
     interface OnSizeChangeCallback {
 

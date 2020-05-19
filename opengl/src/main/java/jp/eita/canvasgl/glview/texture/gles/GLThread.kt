@@ -89,17 +89,14 @@ class GLThread internal constructor(private val mEGLConfigChooser: EGLConfigChoo
 
     private var changeSurface = false
 
-    var eglContext: EglContextWrapper? = EGL_NO_CONTEXT_WRAPPER
+    var eglContext: EglContextWrapper? = sharedEglContext
         private set
+
     private val mChoreographerRenderWrapper = ChoreographerRenderWrapper(this)
 
     private var frameTimeNanos: Long = 0
 
     private var mEglHelper: IEglHelper? = null
-
-    init {
-        eglContext = sharedEglContext
-    }
 
     fun setSurface(surface: Any) {
         if (mSurface !== surface) {
@@ -669,16 +666,9 @@ class GLThread internal constructor(private val mEGLConfigChooser: EGLConfigChoo
         }
     }
 
-    abstract class BaseConfigChooser(configSpec: IntArray, contextClientVersion: Int) : EGLConfigChooser {
+    abstract class BaseConfigChooser(configSpec: IntArray, private val contextClientVersion: Int) : EGLConfigChooser {
 
-        protected var mConfigSpec: IntArray
-
-        private val contextClientVersion: Int
-
-        init {
-            mConfigSpec = filterConfigSpec(configSpec)
-            this.contextClientVersion = contextClientVersion
-        }
+        protected var mConfigSpec: IntArray  = filterConfigSpec(configSpec)
 
         override fun chooseConfig(egl: EGL10, display: EGLDisplay?): EGLConfig {
             val numConfig = IntArray(1)
@@ -774,19 +764,19 @@ class GLThread internal constructor(private val mEGLConfigChooser: EGLConfigChoo
             EGL10.EGL_NONE), contextClientVersion) {
 
         // Subclasses can adjust these values:
-        protected var mRedSize: Int
+        protected var mRedSize: Int = redSize
 
-        protected var mGreenSize: Int
+        protected var mGreenSize: Int = greenSize
 
-        protected var mBlueSize: Int
+        protected var mBlueSize: Int = blueSize
 
-        protected var mAlphaSize: Int
+        protected var mAlphaSize: Int = alphaSize
 
-        protected var mDepthSize: Int
+        protected var mDepthSize: Int = depthSize
 
-        protected var mStencilSize: Int
+        protected var mStencilSize: Int = stencilSize
 
-        private val mValue: IntArray
+        private val mValue: IntArray = IntArray(1)
 
         override fun chooseConfig(egl: EGL10, display: EGLDisplay?,
                                   configs: Array<EGLConfig?>): EGLConfig? {
@@ -820,16 +810,6 @@ class GLThread internal constructor(private val mEGLConfigChooser: EGLConfigChoo
             } else {
                 defaultValue
             }
-        }
-
-        init {
-            mValue = IntArray(1)
-            mRedSize = redSize
-            mGreenSize = greenSize
-            mBlueSize = blueSize
-            mAlphaSize = alphaSize
-            mDepthSize = depthSize
-            mStencilSize = stencilSize
         }
     }
 

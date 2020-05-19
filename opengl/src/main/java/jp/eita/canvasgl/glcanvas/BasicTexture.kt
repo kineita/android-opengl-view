@@ -22,12 +22,10 @@ import java.util.*
 // BasicTexture is a Texture corresponds to a real GL secondBitmap.
 // The state of a BasicTexture indicates whether its data is loaded to GL memory.
 // If a BasicTexture is loaded into GL memory, it has a GL secondBitmap id.
-abstract class BasicTexture protected constructor(canvas: GLCanvas? = null, id: Int = 0, state: Int = STATE_UNLOADED) : Texture {
+abstract class BasicTexture protected constructor(canvas: GLCanvas? = null, id: Int = -1, protected var state: Int = STATE_UNLOADED) : Texture {
 
-    var id = -1
+    var id = id
         protected set
-
-    protected var state: Int
 
     override var width = UNSPECIFIED
         protected set
@@ -43,22 +41,15 @@ abstract class BasicTexture protected constructor(canvas: GLCanvas? = null, id: 
     var textureHeight = 0
         protected set
 
-    protected var canvasRef: GLCanvas? = null
+    protected var canvasRef: GLCanvas? = canvas
 
-    private var hasBorder1 = false
+    var hasBorder = false
 
     var isRecycled = false
         protected set
 
     init {
-        setAssociatedCanvas(canvas)
-        this.id = id
-        this.state = state
         synchronized(ALL_TEXTURES) { ALL_TEXTURES.put(this, null) }
-    }
-
-    protected fun setAssociatedCanvas(canvas: GLCanvas?) {
-        canvasRef = canvas
     }
 
     /**
@@ -91,11 +82,7 @@ abstract class BasicTexture protected constructor(canvas: GLCanvas? = null, id: 
     // Currently our background is black, so we can draw the thumbnails without
     // enabling blending.
     fun hasBorder(): Boolean {
-        return hasBorder1
-    }
-
-    protected fun setBorder(hasBorder: Boolean) {
-        hasBorder1 = hasBorder
+        return hasBorder
     }
 
     override fun draw(canvas: GLCanvas?, x: Int, y: Int) {
@@ -139,7 +126,7 @@ abstract class BasicTexture protected constructor(canvas: GLCanvas? = null, id: 
             id = -1 // Don't free it again.
         }
         state = STATE_UNLOADED
-        setAssociatedCanvas(null)
+        canvasRef = null
     }
 
     protected fun finalize() {
@@ -184,9 +171,9 @@ abstract class BasicTexture protected constructor(canvas: GLCanvas? = null, id: 
 
         fun invalidateAllTextures() {
             synchronized(ALL_TEXTURES) {
-                for (t in ALL_TEXTURES.keys) {
-                    t.state = STATE_UNLOADED
-                    t.setAssociatedCanvas(null)
+                for (basicTexture in ALL_TEXTURES.keys) {
+                    basicTexture.state = STATE_UNLOADED
+                    basicTexture.canvasRef = null
                 }
             }
         }

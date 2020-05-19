@@ -22,7 +22,7 @@ import android.graphics.PointF
 
 open class PathManager<T : PathManagerConfig<*, *, *>> {
 
-    lateinit var config: T
+    open lateinit var config: T
 
     /**
      * @return path which is List[PointF] after calculating.

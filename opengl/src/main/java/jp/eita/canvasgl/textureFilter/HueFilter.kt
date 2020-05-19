@@ -25,14 +25,10 @@ class HueFilter(@FloatRange(from = 0.0, to = 360.0) hue: Float) : BasicTextureFi
 
     private var mHueLocation = 0
 
-    private var hueAdjust: Float
+    private var hueAdjust: Float = hue % 360.0f * Math.PI.toFloat() / 180.0f
 
     override val fragmentShader: String
         get() = HUE_FRAGMENT_SHADER
-
-    init {
-        hueAdjust = hue % 360.0f * Math.PI.toFloat() / 180.0f
-    }
 
     override fun onPreDraw(program: Int, texture: BasicTexture, canvas: ICanvasGL) {
         super.onPreDraw(program, texture, canvas)
@@ -40,8 +36,8 @@ class HueFilter(@FloatRange(from = 0.0, to = 360.0) hue: Float) : BasicTextureFi
         setFloat(mHueLocation, hueAdjust)
     }
 
-    override fun setValue(@FloatRange(from = 0.0, to = 360.0) hue: Float) {
-        hueAdjust = hue % 360.0f * Math.PI.toFloat() / 180.0f
+    override fun setValue(@FloatRange(from = 0.0, to = 360.0) value: Float) {
+        hueAdjust = value % 360.0f * Math.PI.toFloat() / 180.0f
     }
 
     companion object {

@@ -58,8 +58,8 @@ abstract class UploadedTexture protected constructor(hasBorder: Boolean = false)
         get() = GL11.GL_TEXTURE_2D
 
     init {
+        super.hasBorder = hasBorder
         if (hasBorder) {
-            setBorder(true)
             border = 1
         }
     }
@@ -194,7 +194,7 @@ abstract class UploadedTexture protected constructor(hasBorder: Boolean = false)
                 freeBitmap()
             }
             // Update secondBitmap state.
-            setAssociatedCanvas(canvas)
+            canvasRef = canvas
             state = STATE_LOADED
             mContentValid = true
         } else {

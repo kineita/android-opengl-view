@@ -100,7 +100,9 @@ class GLES20Canvas : GLCanvas {
     // Keep track of restore state
     private var mMatrices = FloatArray(INITIAL_RESTORE_STATE_SIZE * MATRIX_SIZE)
 
-    private var mAlphas = FloatArray(INITIAL_RESTORE_STATE_SIZE)
+    private var mAlphas = FloatArray(INITIAL_RESTORE_STATE_SIZE).apply {
+        this[mCurrentAlphaIndex] = 1f
+    }
 
     private val mSaveFlags = IntArrayCustom()
 
@@ -122,13 +124,22 @@ class GLES20Canvas : GLCanvas {
     private var mScreenHeight = 0
 
     // GL programs
-    private var mDrawProgram: Int
+    private var mDrawProgram: Int = assembleProgram(
+            loadShader(GLES20.GL_VERTEX_SHADER, BasicDrawShapeFilter.DRAW_VERTEX_SHADER),
+            loadShader(GLES20.GL_FRAGMENT_SHADER, BasicDrawShapeFilter.DRAW_FRAGMENT_SHADER),
+            mDrawParameters,
+            mTempIntArray
+    )
 
     private var mTextureProgram = 0
 
     private var mOesTextureProgram = 0
 
-    private var mMeshProgram = 0
+    private var mMeshProgram: Int = 0.apply{
+        val textureFragmentShader = loadShader(GLES20.GL_FRAGMENT_SHADER, BasicTextureFilter.TEXTURE_FRAGMENT_SHADER)
+        val meshVertexShader = loadShader(GLES20.GL_VERTEX_SHADER, MESH_VERTEX_SHADER)
+        assembleProgram(meshVertexShader, textureFragmentShader, mMeshParameters, mTempIntArray)
+    }
 
     // GL buffer containing BOX_COORDINATES
     private val mBoxCoordinates: Int
@@ -137,9 +148,9 @@ class GLES20Canvas : GLCanvas {
 
     private var mDrawShapeFilter: DrawShapeFilter? = null
 
-    private var onPreDrawTextureListener: OnPreDrawTextureListener? = null
+    var onPreDrawTextureListener: OnPreDrawTextureListener? = null
 
-    private var onPreDrawShapeListener: OnPreDrawShapeListener? = null
+    var onPreDrawShapeListener: OnPreDrawShapeListener? = null
 
     // Keep track of statistics for debugging
     private var mCountDrawMesh = 0
@@ -155,27 +166,19 @@ class GLES20Canvas : GLCanvas {
     private val mFrameBuffer = IntArray(1)
 
     // Bound textures.
-    private val mTargetTextures = ArrayList<RawTexture?>()
+    private val mTargetTextures = ArrayList<RawTexture?>().apply {
+        add(null)
+    }
 
-    override val gLId: GLId? = GLES20IdImpl()
+    override val gLId: GLId = GLES20IdImpl()
 
     init {
         Matrix.setIdentityM(mTempTextureMatrix, 0)
         Matrix.setIdentityM(mMatrices, mCurrentMatrixIndex)
-        mAlphas[mCurrentAlphaIndex] = 1f
-        mTargetTextures.add(null)
-        val boxBuffer = createBuffer(BOX_COORDINATES)
-        mBoxCoordinates = uploadBuffer(boxBuffer)
-        mDrawProgram = assembleProgram(loadShader(GLES20.GL_VERTEX_SHADER, BasicDrawShapeFilter.DRAW_VERTEX_SHADER), loadShader(GLES20.GL_FRAGMENT_SHADER, BasicDrawShapeFilter.DRAW_FRAGMENT_SHADER), mDrawParameters, mTempIntArray)
-        val textureFragmentShader = loadShader(GLES20.GL_FRAGMENT_SHADER, BasicTextureFilter.TEXTURE_FRAGMENT_SHADER)
-        val meshVertexShader = loadShader(GLES20.GL_VERTEX_SHADER, MESH_VERTEX_SHADER)
-        setupMeshProgram(meshVertexShader, textureFragmentShader)
         GLES20.glBlendFunc(GLES20.GL_ONE, GLES20.GL_ONE_MINUS_SRC_ALPHA)
         checkError()
-    }
-
-    private fun setupMeshProgram(meshVertexShader: Int, textureFragmentShader: Int) {
-        mMeshProgram = assembleProgram(meshVertexShader, textureFragmentShader, mMeshParameters, mTempIntArray)
+        val boxBuffer = createBuffer(BOX_COORDINATES)
+        mBoxCoordinates = uploadBuffer(boxBuffer)
     }
 
     override fun setSize(width: Int, height: Int) {
@@ -321,9 +324,7 @@ class GLES20Canvas : GLCanvas {
     private fun draw(type: Int, offset: Int, count: Int, x: Float, y: Float, width: Float, height: Float,
                      color: Int, lineWidth: Float) {
         prepareDraw(offset, color, lineWidth)
-        if (onPreDrawShapeListener != null) {
-            onPreDrawShapeListener!!.onPreDraw(mDrawProgram, mDrawShapeFilter)
-        }
+        onPreDrawShapeListener?.onPreDraw(mDrawProgram, mDrawShapeFilter)
         draw(mDrawParameters, type, count, x, y, width, height, null)
     }
 
@@ -441,11 +442,8 @@ class GLES20Canvas : GLCanvas {
     private fun drawTextureRect(texture: BasicTexture?, textureMatrix: FloatArray?, target: RectF, customMVPMatrix: ICustomMVPMatrix?) {
         val params = prepareTexture(texture)
         setPosition(params, OFFSET_FILL_RECT)
-        //        printMatrix("texture matrix", textureMatrix, 0);
         GLES20.glUniformMatrix4fv(params[INDEX_TEXTURE_MATRIX].handle, 1, false, textureMatrix, 0)
-        if (onPreDrawTextureListener != null) {
-            onPreDrawTextureListener!!.onPreDraw(if (texture!!.target == GLES20.GL_TEXTURE_2D) mTextureProgram else mOesTextureProgram, texture, mTextureFilter)
-        }
+        onPreDrawTextureListener?.onPreDraw(if (texture!!.target == GLES20.GL_TEXTURE_2D) mTextureProgram else mOesTextureProgram, texture, mTextureFilter)
         checkError()
         if (texture!!.isFlippedVertically) {
             save(GLCanvas.SAVE_FLAG_MATRIX)
@@ -563,12 +561,12 @@ class GLES20Canvas : GLCanvas {
         synchronized(mUnboundTextures) {
             var ids = mUnboundTextures
             if (mUnboundTextures.size() > 0) {
-                gLId!!.glDeleteTextures(ids.size(), ids.internalArray, 0)
+                gLId.glDeleteTextures(ids.size(), ids.internalArray, 0)
                 ids.clear()
             }
             ids = mDeleteBuffers
             if (ids.size() > 0) {
-                gLId!!.glDeleteBuffers(ids.size(), ids.internalArray, 0)
+                gLId.glDeleteBuffers(ids.size(), ids.internalArray, 0)
                 ids.clear()
             }
         }
@@ -691,7 +689,7 @@ class GLES20Canvas : GLCanvas {
     }
 
     private fun uploadBuffer(buffer: Buffer?, elementSize: Int): Int {
-        gLId!!.glGenBuffers(1, mTempIntArray, 0)
+        gLId.glGenBuffers(1, mTempIntArray, 0)
         checkError()
         val bufferId = mTempIntArray[0]
         GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, bufferId)
@@ -766,14 +764,6 @@ class GLES20Canvas : GLCanvas {
         return assembleProgram(vertexShaderHandle, fragmentShaderHandle, shaderParameters, mTempIntArray)
     }
 
-    override fun setOnPreDrawTextureListener(l: OnPreDrawTextureListener?) {
-        onPreDrawTextureListener = l
-    }
-
-    override fun setOnPreDrawShapeListener(l: OnPreDrawShapeListener?) {
-        onPreDrawShapeListener = l
-    }
-
     abstract class ShaderParameter(protected val mName: String) {
 
         var handle = 0
@@ -796,13 +786,21 @@ class GLES20Canvas : GLCanvas {
     }
 
     companion object {
+
         const val POSITION_ATTRIBUTE = "aPosition"
+
         const val COLOR_UNIFORM = "uColor"
+
         const val MATRIX_UNIFORM = "uMatrix"
+
         const val TEXTURE_MATRIX_UNIFORM = "uTextureMatrix"
+
         const val TEXTURE_SAMPLER_UNIFORM = "uTextureSampler"
+
         const val ALPHA_UNIFORM = "uAlpha"
+
         const val TEXTURE_COORD_ATTRIBUTE = "aTextureCoordinate"
+
         const val MESH_VERTEX_SHADER = (""
                 + "uniform mat4 " + MATRIX_UNIFORM + ";\n"
                 + "attribute vec2 " + POSITION_ATTRIBUTE + ";\n"

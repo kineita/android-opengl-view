@@ -27,7 +27,7 @@ class RawTexture constructor(width: Int, height: Int, override val isOpaque: Boo
     var isNeedInvalidate = false
 
     /**
-     * @param isFlipped whether vertically flip this texture
+     * [isFlippedVertically] whether vertically flip this texture
      */
     override var isFlippedVertically = false
 
@@ -45,7 +45,7 @@ class RawTexture constructor(width: Int, height: Int, override val isOpaque: Boo
         }
         canvas.setTextureParameters(this)
         state = STATE_LOADED
-        setAssociatedCanvas(canvas)
+        canvasRef = canvas
     }
 
     override fun onBind(canvas: GLCanvas): Boolean {

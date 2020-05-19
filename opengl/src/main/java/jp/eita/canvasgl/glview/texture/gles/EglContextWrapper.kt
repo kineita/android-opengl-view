@@ -21,9 +21,9 @@ import javax.microedition.khronos.egl.EGLContext
 
 open class EglContextWrapper {
 
-    open lateinit var eglContextOld: EGLContext
+    open var eglContextOld: EGLContext = EGL10.EGL_NO_CONTEXT
 
-    open var eglContext: android.opengl.EGLContext? = null
+    open var eglContext: android.opengl.EGLContext = EGL14.EGL_NO_CONTEXT
 
     class EGLNoContextWrapper : EglContextWrapper() {
 
@@ -33,11 +33,6 @@ open class EglContextWrapper {
 
         internal fun setEglContextOld(eglContextOld: EGLContext) {
 
-        }
-
-        init {
-            eglContextOld = EGL10.EGL_NO_CONTEXT
-            eglContext = EGL14.EGL_NO_CONTEXT
         }
     }
 

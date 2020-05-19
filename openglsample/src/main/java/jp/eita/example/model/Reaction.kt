@@ -24,6 +24,7 @@ import jp.eita.canvasgl.ICanvasGL
 import jp.eita.canvasgl.pathManager.bezier.BezierPathManager
 import jp.eita.canvasgl.textureFilter.BasicTextureFilter
 import jp.eita.canvasgl.textureFilter.TextureFilter
+import jp.eita.canvasgl.util.Loggers
 import jp.eita.canvasgl.util.MathUtils
 
 class Reaction(
@@ -85,6 +86,7 @@ class Reaction(
     }
 
     private fun runPosition() {
+        Loggers.d("Testing", listPostion[crawlerListPosition].toString())
         if (crawlerListPosition >= listPostion.size) {
             return
         }
@@ -107,9 +109,5 @@ class Reaction(
         }
         alpha = listAlpha[crawlerListAlpha]
         crawlerListAlpha++
-    }
-
-    override fun onDestroy() {
-        status = Status.DESTROY
     }
 }

@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package jp.eita.canvasgl.glview
 
 import android.content.Context
@@ -25,12 +26,9 @@ abstract class GLContinuousView : GLView {
 
     constructor(context: Context?, attrs: AttributeSet?) : super(context, attrs)
 
-    override fun init() {
-        super.init()
+    init {
         renderMode = RENDERMODE_CONTINUOUSLY
     }
 
-    override fun onGLDraw(canvas: ICanvasGL) {
-
-    }
+    override fun onGLDraw(canvas: ICanvasGL) = Unit
 }

@@ -24,15 +24,13 @@ import javax.microedition.khronos.egl.*
 /**
  * For Test
  */
-class EGLLogWrapper(egl: EGL, configFlags: Int, log: Writer?) : EGL11 {
+class EGLLogWrapper(egl: EGL, configFlags: Int, var log: Writer?) : EGL11 {
 
-    var mLog: Writer?
+    var logArgumentNames: Boolean = GLDebugHelper.CONFIG_LOG_ARGUMENT_NAMES and configFlags != 0
 
-    var logArgumentNames: Boolean
+    var checkError: Boolean = GLDebugHelper.CONFIG_CHECK_GL_ERROR and configFlags != 0
 
-    var checkError: Boolean
-
-    private val egl10: EGL10
+    private val egl10: EGL10 = egl as EGL10
 
     private var argCount = 0
 
@@ -349,7 +347,7 @@ class EGLLogWrapper(egl: EGL, configFlags: Int, log: Writer?) : EGL11 {
 
     private fun log(message: String) {
         try {
-            mLog!!.write(message)
+            log!!.write(message)
         } catch (e: IOException) {
             // Ignore exception, keep on trying
         }
@@ -377,9 +375,9 @@ class EGLLogWrapper(egl: EGL, configFlags: Int, log: Writer?) : EGL11 {
 
     private fun flush() {
         try {
-            mLog!!.flush()
+            log!!.flush()
         } catch (e: IOException) {
-            mLog = null
+            log = null
         }
     }
 
@@ -515,12 +513,5 @@ class EGLLogWrapper(egl: EGL, configFlags: Int, log: Writer?) : EGL11 {
                 else -> getHex(error)
             }
         }
-    }
-
-    init {
-        egl10 = egl as EGL10
-        mLog = log
-        logArgumentNames = GLDebugHelper.CONFIG_LOG_ARGUMENT_NAMES and configFlags != 0
-        checkError = GLDebugHelper.CONFIG_CHECK_GL_ERROR and configFlags != 0
     }
 }

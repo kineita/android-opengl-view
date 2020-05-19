@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package jp.eita.example.model
 
 import android.graphics.Canvas
@@ -62,7 +63,9 @@ open class MovableObject(
 
     override fun normalDraw(canvas: Canvas) {}
 
-    override fun onDestroy() {}
+    override fun onDestroy() {
+        this.status = Status.DESTROY
+    }
 
     companion object {
 

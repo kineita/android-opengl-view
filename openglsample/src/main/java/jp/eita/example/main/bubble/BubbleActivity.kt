@@ -18,17 +18,12 @@ package jp.eita.example.main.bubble
 import android.graphics.Bitmap
 import android.graphics.PointF
 import android.os.Bundle
-import android.os.Handler
-import android.text.Editable
-import android.text.TextWatcher
 import androidx.appcompat.app.AppCompatActivity
+import jp.eita.canvasgl.textureFilter.*
 import jp.eita.canvasgl.util.BitmapUtils
 import jp.eita.canvasgl.util.OpenGLUtil
-import jp.eita.canvasgl.textureFilter.*
 import jp.eita.example.R
 import jp.eita.example.model.Bubble
-import jp.eita.example.structure.AlphaList
-import jp.eita.example.structure.ScaleRatioList
 import kotlinx.android.synthetic.main.activity_opengl_bubble.*
 import java.util.*
 import kotlin.collections.ArrayList
@@ -39,36 +34,11 @@ class BubbleActivity : AppCompatActivity() {
 
     private lateinit var bitmap: Bitmap
 
-    private val scaleRatioList: ScaleRatioList = ScaleRatioList()
-
-    private val alphaList: AlphaList = AlphaList(0)
-
-    private val runnable = Runnable {
-        loopChangingPropertiesBubbles()
-    }
-
-    init {
-//        Handler().postDelayed(runnable, 150)
-    }
-
-    private fun loopChangingPropertiesBubbles() {
-        changingPropertiesBubbles()
-        Handler().postDelayed(runnable, 150)
-    }
-
-    private fun changingPropertiesBubbles() {
-        for (i in 0 until gl_view_bubble.movableCollisionObjectList.size) {
-            gl_view_bubble.movableCollisionObjectList[i].scaleSizeRatio = scaleRatioList.listDetails[i].scaleRatioValue
-            gl_view_bubble.movableCollisionObjectList[i].alpha = alphaList.listDetails[i].scaleRatioValue
-        }
-    }
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_opengl_bubble)
         title = getString(R.string.bubble_title)
         setUpBitmap()
-        setUpEditTextScaleRatio()
         initFilterList(upFilterList)
         setUpButtonLike()
     }
@@ -78,37 +48,6 @@ class BubbleActivity : AppCompatActivity() {
 //        BitmapUtils.adjustOpacity(bitmap = bitmap, opacity = 120)
 //        bitmap = BitmapUtils.getScaledDownBitmap(bitmap, 64, false)
 //        anim_gl_view.alpha = 0.6f
-    }
-
-    private fun setUpEditTextScaleRatio() {
-        editTextScaleRatio.addTextChangedListener(object : TextWatcher {
-
-            override fun afterTextChanged(s: Editable?) {
-                try {
-                    val value: Double = if (s == null || s.toString() == "") {
-                        return
-                    } else if (s.toString() == "0.") {
-                        0.1
-                    } else {
-                        s.toString().toDouble()
-                    }
-                    gl_view_bubble.onPause()
-//                    anim_gl_view.updateScaleRatioForAllBubbles(value.toFloat())
-                    gl_view_bubble.onResume()
-                } catch (ex: Exception) {
-
-                }
-            }
-
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
-
-            }
-
-            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-
-            }
-
-        })
     }
 
     private fun initFilterList(filterList: MutableList<TextureFilter>) {
@@ -145,9 +84,8 @@ class BubbleActivity : AppCompatActivity() {
             editTextScaleRatio.text.toString().toFloat()
         }
         val alpha = 255
-        scaleRatioList.add(scaleRatio)
-        alphaList.add(alpha)
-        val bubble = Bubble(
+
+        return Bubble(
                 PointF(x, y - 700),
                 vx,
                 vy,
@@ -158,8 +96,6 @@ class BubbleActivity : AppCompatActivity() {
                 scaleSizeRatio = scaleRatio,
                 alpha = alpha
         )
-
-        return bubble
     }
 
     override fun onResume() {

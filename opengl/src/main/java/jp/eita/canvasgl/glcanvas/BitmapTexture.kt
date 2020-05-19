@@ -34,5 +34,4 @@ class BitmapTexture constructor(var bitmap: Bitmap, hasBorder: Boolean = false) 
 
     override val isOpaque: Boolean
         get() = false
-
 }

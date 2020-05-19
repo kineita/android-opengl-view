@@ -34,13 +34,13 @@ import kotlin.math.roundToInt
 /**
  * All the depth of textures are the same. So the texture drawn after will cover the texture drawn before.
  */
-class CanvasGL constructor(override val glCanvas: GLCanvas = GLES20Canvas()) : ICanvasGL {
+class CanvasGL : ICanvasGL {
 
     private val bitmapTextureMap: MutableMap<Bitmap, BasicTexture> = WeakHashMap()
 
-    private val defaultTextureFilter: BasicTextureFilter
+    private val defaultTextureFilter: BasicTextureFilter = BasicTextureFilter()
 
-    private val canvasBackgroundColor: FloatArray
+    private val canvasBackgroundColor = FloatArray(4)
 
     private val surfaceTextureMatrix = FloatArray(16)
 
@@ -50,28 +50,24 @@ class CanvasGL constructor(override val glCanvas: GLCanvas = GLES20Canvas()) : I
     override var height = 0
         private set
 
-    private val defaultDrawShapeFilter: BasicDrawShapeFilter
+    private val defaultDrawShapeFilter: BasicDrawShapeFilter = BasicDrawShapeFilter()
 
     private val drawCircleFilter = DrawCircleFilter()
 
     private var currentTextureFilter: TextureFilter? = null
 
-    init {
-        glCanvas.setOnPreDrawShapeListener(object : GLCanvas.OnPreDrawShapeListener {
+    override val glCanvas: GLCanvas = GLES20Canvas().apply {
+        onPreDrawShapeListener = object : GLCanvas.OnPreDrawShapeListener {
             override fun onPreDraw(program: Int, drawShapeFilter: DrawShapeFilter?) {
                 drawShapeFilter?.onPreDraw(program, this@CanvasGL)
             }
+        }
 
-        })
-        glCanvas.setOnPreDrawTextureListener(object : GLCanvas.OnPreDrawTextureListener {
+        onPreDrawTextureListener = object : GLCanvas.OnPreDrawTextureListener {
             override fun onPreDraw(textureProgram: Int, texture: BasicTexture?, textureFilter: TextureFilter?) {
                 textureFilter!!.onPreDraw(textureProgram, texture!!, this@CanvasGL)
             }
-
-        })
-        defaultTextureFilter = BasicTextureFilter()
-        defaultDrawShapeFilter = BasicDrawShapeFilter()
-        canvasBackgroundColor = FloatArray(4)
+        }
     }
 
     override fun bindBitmapToTexture(whichTexture: Int, bitmap: Bitmap): BitmapTexture? {
@@ -332,7 +328,7 @@ class CanvasGL constructor(override val glCanvas: GLCanvas = GLES20Canvas()) : I
         glCanvas.setSize(width, height)
     }
 
-    override fun resume() { }
+    override fun resume() {}
 
     override fun pause() {
         currentTextureFilter?.destroy()

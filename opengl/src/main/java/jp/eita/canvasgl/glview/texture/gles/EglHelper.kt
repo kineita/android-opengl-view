@@ -20,13 +20,13 @@ import jp.eita.canvasgl.util.FileLogger
 import jp.eita.canvasgl.util.Loggers
 import javax.microedition.khronos.egl.*
 
-class EglHelper : IEglHelper {
+class EglHelper(
+        private val eglConfigChooser: GLThread.EGLConfigChooser,
 
-    private val eglConfigChooser: GLThread.EGLConfigChooser
+        private val eglContextFactory: GLThread.EGLContextFactory,
 
-    private val eglContextFactory: GLThread.EGLContextFactory
-
-    private val eglWindowSurfaceFactory: GLThread.EGLWindowSurfaceFactory
+        private val eglWindowSurfaceFactory: GLThread.EGLWindowSurfaceFactory
+) : IEglHelper {
 
     private var egl: EGL10? = null
 
@@ -37,12 +37,6 @@ class EglHelper : IEglHelper {
     private var eglConfig: EGLConfig? = null
 
     private var eglContext1: EGLContext? = null
-
-    constructor(eglConfigChooser: GLThread.EGLConfigChooser, eglContextFactory: GLThread.EGLContextFactory, eglWindowSurfaceFactory: GLThread.EGLWindowSurfaceFactory) {
-        this.eglConfigChooser = eglConfigChooser
-        this.eglContextFactory = eglContextFactory
-        this.eglWindowSurfaceFactory = eglWindowSurfaceFactory
-    }
 
     /**
      * Initialize EGL for a given configuration spec.

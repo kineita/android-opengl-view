@@ -39,7 +39,7 @@ open class PathManagerConfig<POINT : PathManagerConfig.PointConfig
 
         open val listLevel: MutableList<Level> = ArrayList()
 
-        open fun addLevel(level: Level): AlphaConfig {
+        open fun addLevel(level: Level) {
             if (listLevel.isNotEmpty()) {
                 val previousLevel = listLevel[listLevel.size - 1]
                 when {
@@ -53,7 +53,6 @@ open class PathManagerConfig<POINT : PathManagerConfig.PointConfig
             }
 
             listLevel.add(level)
-            return this
         }
 
         open class Level(val position: Int, val alpha: Int) {
@@ -68,7 +67,7 @@ open class PathManagerConfig<POINT : PathManagerConfig.PointConfig
 
         open val listLevel: MutableList<Level> = ArrayList()
 
-        open fun addLevel(level: Level): ScaleSizeConfig {
+        open fun addLevel(level: Level) {
             if (listLevel.isNotEmpty()) {
                 val previousLevel = listLevel[listLevel.size - 1]
                 when {
@@ -82,7 +81,6 @@ open class PathManagerConfig<POINT : PathManagerConfig.PointConfig
             }
 
             listLevel.add(level)
-            return this
         }
 
         open class Level(val position: Int, val scaleSizeRatio: Float) {
@@ -109,8 +107,6 @@ open class PathManagerConfig<POINT : PathManagerConfig.PointConfig
         /**
          * Applies resolved control points to the specified Path.
          */
-        open fun generatePath(): Path {
-            return this.path
-        }
+        open fun generatePath(): Path = this.path
     }
 }

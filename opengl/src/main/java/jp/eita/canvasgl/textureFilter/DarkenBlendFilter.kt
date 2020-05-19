@@ -18,6 +18,7 @@ package jp.eita.canvasgl.textureFilter
 import android.graphics.Bitmap
 
 class DarkenBlendFilter : TwoTextureFilter {
+
     override val fragmentShader: String
         get() = DARKEN_BLEND_FRAGMENT_SHADER
 

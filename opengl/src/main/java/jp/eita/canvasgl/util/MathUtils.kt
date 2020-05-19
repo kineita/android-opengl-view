@@ -16,8 +16,6 @@
  *
  */
 
-@file:Suppress("unused")
-
 package jp.eita.canvasgl.util
 
 import android.graphics.PointF

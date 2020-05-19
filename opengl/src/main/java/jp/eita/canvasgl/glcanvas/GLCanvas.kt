@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package jp.eita.canvasgl.glcanvas
 
 import android.graphics.Bitmap
@@ -210,10 +211,6 @@ interface GLCanvas {
      * @param height The height of the input rectangle.
      */
     fun getBounds(bounds: Rect?, x: Int, y: Int, width: Int, height: Int)
-
-    fun setOnPreDrawTextureListener(l: OnPreDrawTextureListener?)
-
-    fun setOnPreDrawShapeListener(l: OnPreDrawShapeListener?)
 
     interface OnPreDrawTextureListener {
 

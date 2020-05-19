@@ -26,9 +26,7 @@ import jp.eita.canvasgl.util.PositionUtil
 
 open class BezierPathManager : PathManager<BezierPathManagerConfig>() {
 
-    init {
-        config = BezierPathManagerConfig()
-    }
+    override var config: BezierPathManagerConfig = BezierPathManagerConfig()
 
     override fun generateListPoint(): List<PointF> {
         config.point?.let { pointConfig ->

@@ -44,24 +44,25 @@ class ReactionActivity : AppCompatActivity() {
 
     private lateinit var bitmap: Bitmap
 
-    private val pathManager = BezierPathManager()
-
-    init {
-        pathManager.config.point = BezierPathManagerConfig.PointConfig(3)
-        pathManager.config.point!!.size = 60
-        pathManager.config.scaleSize = BezierPathManagerConfig.ScaleSizeConfig()
-        pathManager.config.scaleSize!!.size = 60
-        pathManager.config.scaleSize!!
-                .addLevel(ScaleSizeConfig.Level(0, 1f))
-                .addLevel(ScaleSizeConfig.Level(20, 1.5f))
-                .addLevel(ScaleSizeConfig.Level(40, 1.8f))
-                .addLevel(ScaleSizeConfig.Level(60, 0.8f))
-        pathManager.config.alpha = BezierPathManagerConfig.AlphaConfig()
-        pathManager.config.alpha!!.size = 60
-        pathManager.config.alpha!!
-                .addLevel(AlphaConfig.Level(0, 150))
-                .addLevel(AlphaConfig.Level(30, 255))
-                .addLevel(AlphaConfig.Level(60, 120))
+    private val pathManager = BezierPathManager().apply {
+        config.apply {
+            point = BezierPathManagerConfig.PointConfig(3)
+                    .also { it.size = 60 }
+            scaleSize = BezierPathManagerConfig.ScaleSizeConfig()
+                    .apply {
+                        addLevel(ScaleSizeConfig.Level(0, 1f))
+                        addLevel(ScaleSizeConfig.Level(20, 1.5f))
+                        addLevel(ScaleSizeConfig.Level(40, 1.8f))
+                        addLevel(ScaleSizeConfig.Level(60, 0.8f))
+                    }
+                    .also { it.size = 60 }
+            alpha = BezierPathManagerConfig.AlphaConfig()
+                    .apply {
+                        addLevel(AlphaConfig.Level(0, 60))
+                        addLevel(AlphaConfig.Level(60, 255))
+                    }
+                    .also { it.size = 60 }
+        }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {

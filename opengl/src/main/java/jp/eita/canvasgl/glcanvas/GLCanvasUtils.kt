@@ -42,7 +42,18 @@ object GLCanvasUtils {
 
     private const val MASK_STRING = "********************************"
 
-    private val CRC_TABLE = LongArray(256)
+    private val CRC_TABLE = LongArray(256).apply {
+        var part: Long
+
+        for (i in 0..255) {
+            part = i.toLong()
+            for (j in 0..7) {
+                val x = if (part.toInt() and 1 != 0) POLY64REV else 0
+                part = part.shr(1) xor x
+            }
+            this[i] = part
+        }
+    }
 
     // Throws AssertionError if the input is false.
     fun assertTrue(cond: Boolean) {
@@ -325,19 +336,5 @@ object GLCanvasUtils {
     // This method should be ONLY used for debugging.
     fun debug(message: String?, vararg args: Any?) {
         Log.v(DEBUG_TAG, String.format(message!!, *args))
-    }
-
-    init {
-        // http://bioinf.cs.ucl.ac.uk/downloads/crc64/crc64.c
-        var part: Long
-
-        for (i in 0..255) {
-            part = i.toLong()
-            for (j in 0..7) {
-                val x = if (part.toInt() and 1 != 0) POLY64REV else 0
-                part = part.shr(1) xor x
-            }
-            CRC_TABLE[i] = part
-        }
     }
 }
