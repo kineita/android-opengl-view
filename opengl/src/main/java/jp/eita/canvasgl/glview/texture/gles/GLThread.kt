@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package jp.eita.canvasgl.glview.texture.gles
 
 import android.annotation.TargetApi
@@ -575,6 +576,7 @@ class GLThread internal constructor(private val mEGLConfigChooser: EGLConfigChoo
 
     // End of member variables protected by the sGLThreadManager monitor.
     interface OnCreateGLContextListener {
+
         fun onCreate(eglContext: EglContextWrapper?)
     }
 
@@ -600,13 +602,18 @@ class GLThread internal constructor(private val mEGLConfigChooser: EGLConfigChoo
          * @return the chosen configuration.
          */
         fun chooseConfig(egl: EGL10, display: EGLDisplay?): EGLConfig
+
         fun chooseConfig(display: android.opengl.EGLDisplay?, recordable: Boolean): android.opengl.EGLConfig?
     }
 
     interface EGLContextFactory {
+
         fun createContext(egl: EGL10, display: EGLDisplay?, eglConfig: EGLConfig?, eglContext: javax.microedition.khronos.egl.EGLContext?): javax.microedition.khronos.egl.EGLContext?
+
         fun destroyContext(egl: EGL10, display: EGLDisplay, context: javax.microedition.khronos.egl.EGLContext)
+
         fun createContextAPI17(display: android.opengl.EGLDisplay?, eglConfig: android.opengl.EGLConfig?, eglContext: EGLContext?): EGLContext?
+
         fun destroyContext(display: android.opengl.EGLDisplay, context: EGLContext)
     }
 
@@ -626,14 +633,14 @@ class GLThread internal constructor(private val mEGLConfigChooser: EGLConfigChoo
 
     private class GLThreadManager : Object() {
 
-        private var mEglOwner: GLThread? = null
+        private var eglOwner: GLThread? = null
 
         @Synchronized
         fun threadExiting(thread: GLThread) {
             FileLogger.i(TAG, "exiting tid=" + thread.id)
             thread.mExited = true
-            if (mEglOwner === thread) {
-                mEglOwner = null
+            if (eglOwner === thread) {
+                eglOwner = null
             }
             notifyAll()
         }
@@ -646,8 +653,8 @@ class GLThread internal constructor(private val mEGLConfigChooser: EGLConfigChoo
          * @return true if the right to use an EGL context was acquired.
          */
         fun tryAcquireEglContextLocked(thread: GLThread): Boolean {
-            if (mEglOwner === thread || mEglOwner == null) {
-                mEglOwner = thread
+            if (eglOwner === thread || eglOwner == null) {
+                eglOwner = thread
                 notifyAll()
                 return true
             }
@@ -659,8 +666,8 @@ class GLThread internal constructor(private val mEGLConfigChooser: EGLConfigChoo
          * sGLThreadManager monitor when this is called.
          */
         fun releaseEglContextLocked(thread: GLThread) {
-            if (mEglOwner === thread) {
-                mEglOwner = null
+            if (eglOwner === thread) {
+                eglOwner = null
             }
             notifyAll()
         }
@@ -668,16 +675,18 @@ class GLThread internal constructor(private val mEGLConfigChooser: EGLConfigChoo
 
     abstract class BaseConfigChooser(configSpec: IntArray, private val contextClientVersion: Int) : EGLConfigChooser {
 
-        protected var mConfigSpec: IntArray  = filterConfigSpec(configSpec)
+        private val EGL_RECORDABLE_ANDROID = 0x3142
+
+        protected var configSpec: IntArray  = filterConfigSpec(configSpec)
 
         override fun chooseConfig(egl: EGL10, display: EGLDisplay?): EGLConfig {
             val numConfig = IntArray(1)
-            require(egl.eglChooseConfig(display, mConfigSpec, null, 0,
+            require(egl.eglChooseConfig(display, configSpec, null, 0,
                     numConfig)) { "eglChooseConfig failed" }
             val numConfigs = numConfig[0]
             require(numConfigs > 0) { "No configs match configSpec" }
             val configs = arrayOfNulls<EGLConfig>(numConfigs)
-            require(egl.eglChooseConfig(display, mConfigSpec, configs, numConfigs,
+            require(egl.eglChooseConfig(display, configSpec, configs, numConfigs,
                     numConfig)) { "eglChooseConfig#2 failed" }
             return chooseConfig(egl, display, configs)
                     ?: throw IllegalArgumentException("No config chosen")
@@ -742,19 +751,28 @@ class GLThread internal constructor(private val mEGLConfigChooser: EGLConfigChoo
 
             return configs[0]
         }
-
-        companion object {
-
-            private const val EGL_RECORDABLE_ANDROID = 0x3142
-        }
     }
 
     /**
      * Choose a configuration with exactly the specified r,g,b,a sizes,
      * and at least the specified depth and stencil sizes.
      */
-    open class ComponentSizeChooser(redSize: Int, greenSize: Int, blueSize: Int,
-                                    alphaSize: Int, depthSize: Int, stencilSize: Int, contextClientVersion: Int) : BaseConfigChooser(intArrayOf(
+    open class ComponentSizeChooser(// Subclasses can adjust these values:
+            protected var redSize: Int,
+
+            protected var greenSize: Int,
+
+            protected var blueSize: Int,
+
+            protected var alphaSize: Int,
+
+            protected var depthSize: Int,
+
+            protected var stencilSize: Int,
+
+            contextClientVersion: Int
+
+    ) : BaseConfigChooser(intArrayOf(
             EGL10.EGL_RED_SIZE, redSize,
             EGL10.EGL_GREEN_SIZE, greenSize,
             EGL10.EGL_BLUE_SIZE, blueSize,
@@ -763,20 +781,7 @@ class GLThread internal constructor(private val mEGLConfigChooser: EGLConfigChoo
             EGL10.EGL_STENCIL_SIZE, stencilSize,
             EGL10.EGL_NONE), contextClientVersion) {
 
-        // Subclasses can adjust these values:
-        protected var mRedSize: Int = redSize
-
-        protected var mGreenSize: Int = greenSize
-
-        protected var mBlueSize: Int = blueSize
-
-        protected var mAlphaSize: Int = alphaSize
-
-        protected var mDepthSize: Int = depthSize
-
-        protected var mStencilSize: Int = stencilSize
-
-        private val mValue: IntArray = IntArray(1)
+        private val value: IntArray = IntArray(1)
 
         override fun chooseConfig(egl: EGL10, display: EGLDisplay?,
                                   configs: Array<EGLConfig?>): EGLConfig? {
@@ -785,7 +790,7 @@ class GLThread internal constructor(private val mEGLConfigChooser: EGLConfigChoo
                         EGL10.EGL_DEPTH_SIZE, 0)
                 val s = findConfigAttrib(egl, display, config,
                         EGL10.EGL_STENCIL_SIZE, 0)
-                if (d >= mDepthSize && s >= mStencilSize) {
+                if (d >= depthSize && s >= stencilSize) {
                     val r = findConfigAttrib(egl, display, config,
                             EGL10.EGL_RED_SIZE, 0)
                     val g = findConfigAttrib(egl, display, config,
@@ -794,19 +799,20 @@ class GLThread internal constructor(private val mEGLConfigChooser: EGLConfigChoo
                             EGL10.EGL_BLUE_SIZE, 0)
                     val a = findConfigAttrib(egl, display, config,
                             EGL10.EGL_ALPHA_SIZE, 0)
-                    if (r == mRedSize && g == mGreenSize
-                            && b == mBlueSize && a == mAlphaSize) {
+                    if (r == redSize && g == greenSize
+                            && b == blueSize && a == alphaSize) {
                         return config
                     }
                 }
             }
+
             return null
         }
 
         private fun findConfigAttrib(egl: EGL10, display: EGLDisplay?,
                                      config: EGLConfig?, attribute: Int, defaultValue: Int): Int {
-            return if (egl.eglGetConfigAttrib(display, config, attribute, mValue)) {
-                mValue[0]
+            return if (egl.eglGetConfigAttrib(display, config, attribute, value)) {
+                value[0]
             } else {
                 defaultValue
             }
@@ -818,8 +824,21 @@ class GLThread internal constructor(private val mEGLConfigChooser: EGLConfigChoo
      * or without a depth buffer.
      */
     class SimpleEGLConfigChooser : ComponentSizeChooser {
-        constructor(withDepthBuffer: Boolean, contextClientVersion: Int) : super(8, 8, 8, 0, if (withDepthBuffer) 16 else 0, 0, contextClientVersion)
-        constructor(redSize: Int, greenSize: Int, blueSize: Int, alphaSize: Int, depthSize: Int, stencilSize: Int, contextClientVersion: Int) : super(redSize, greenSize, blueSize, alphaSize, depthSize, stencilSize, contextClientVersion)
+
+        constructor(
+                withDepthBuffer: Boolean,
+                contextClientVersion: Int
+        ) : super(8, 8, 8, 0, if (withDepthBuffer) 16 else 0, 0, contextClientVersion)
+
+        constructor(
+                redSize: Int,
+                greenSize: Int,
+                blueSize: Int,
+                alphaSize: Int,
+                depthSize: Int,
+                stencilSize: Int,
+                contextClientVersion: Int
+        ) : super(redSize, greenSize, blueSize, alphaSize, depthSize, stencilSize, contextClientVersion)
 
         companion object {
             fun createConfigChooser(withDepthBuffer: Boolean, contextClientVersion: Int): SimpleEGLConfigChooser {
@@ -834,6 +853,7 @@ class GLThread internal constructor(private val mEGLConfigChooser: EGLConfigChoo
 
     class DefaultContextFactory(private val contextClientVersion: Int) : EGLContextFactory {
 
+        @Suppress("PrivatePropertyName")
         private val EGL_CONTEXT_CLIENT_VERSION = 0x3098
 
         override fun createContext(egl: EGL10, display: EGLDisplay?, eglConfig: EGLConfig?, eglContext: javax.microedition.khronos.egl.EGLContext?): javax.microedition.khronos.egl.EGLContext? {
@@ -1013,6 +1033,7 @@ class GLThread internal constructor(private val mEGLConfigChooser: EGLConfigChoo
             if (eglWindowSurfaceFactory == null) {
                 eglWindowSurfaceFactory = DefaultWindowSurfaceFactory()
             }
+
             return GLThread(configChooser, eglContextFactory!!, eglWindowSurfaceFactory!!, renderer!!, renderMode, surface, eglContext)
         }
     }
@@ -1022,6 +1043,7 @@ class GLThread internal constructor(private val mEGLConfigChooser: EGLConfigChoo
 
         // Only used when render mode is RENDERMODE_CONTINUOUSLY
         private var canSwap = true
+
         override fun doFrame(frameTimeNanos: Long) {
             if (glThread.mRenderMode == RENDERMODE_CONTINUOUSLY) {
                 canSwap = true
@@ -1050,28 +1072,22 @@ class GLThread internal constructor(private val mEGLConfigChooser: EGLConfigChoo
 
     class ChoreographerRenderWrapper(glThread: GLThread) {
 
-        private var choreographerRender: ChoreographerRender? = null
-
-        init {
-            choreographerRender = ChoreographerRender(glThread)
-        }
+        private var choreographerRender: ChoreographerRender = ChoreographerRender(glThread)
 
         fun start() {
-            choreographerRender?.start()
+            choreographerRender.start()
         }
 
         fun stop() {
-            choreographerRender?.start()
+            choreographerRender.start()
         }
 
         fun canSwap(): Boolean {
-            return if (choreographerRender != null) {
-                choreographerRender!!.isCanSwap()
-            } else true
+            return choreographerRender.isCanSwap()
         }
 
         fun disableSwap() {
-            choreographerRender?.setCanSwap(false)
+            choreographerRender.setCanSwap(false)
         }
     }
 
